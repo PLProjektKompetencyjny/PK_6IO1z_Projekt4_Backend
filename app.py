@@ -8,14 +8,16 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    app.logger.info("Hello, World!")
-    return 'Hello, World!'
+    message = "Hello, World!"
+    app.logger.info(f"{message}")
+    return message
 
 
 @app.route('/error')
 def error():
-    app.logger.error("I'm an error")
-    return "I'm an error"
+    error_message = "I'm an error"
+    app.logger.error(f"{error_message}")
+    return error_message
 
 
 @app.after_request
