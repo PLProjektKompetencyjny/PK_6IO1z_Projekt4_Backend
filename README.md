@@ -2,7 +2,7 @@
 
 Ręczne uruchomienie aplikacji:
   - source ./env/bin/activate
-  - python manage.py runserver
-
-Uruchomienie aplikacji poprzez docker:
+  - python3 app.py
+  
+  - Uruchomienie aplikacji poprzez docker:
   - TODO
