@@ -1,5 +1,5 @@
-flask
-psycopg2-binary
-pytest
-flaks-sqlalchemy
-requests
+flask==3.0.2
+psycopg2-binary==2.9.9
+pytest==8.1.1
+sqlalchemy==2.0.28
+requests==2.31.0
