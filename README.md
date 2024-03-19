@@ -1,4 +1,3 @@
-
 # PK_6IO1z_Projekt4_Backend
 
 Projekt PK_6IO1z_Projekt4_Backend jest aplikacją backendową napisaną w Pythonie, która...
@@ -31,6 +30,13 @@ pip install -r requirements.txt
 ```
 
 ## Uruchomienie aplikacji
+
+Jeśli uruchamiasz aplikację po raz pierwszy, wykonaj polecenia:
+
+```bash
+sudo mkdir /var/log/flask-app/
+sudo chmod 777 /var/log/flask-app/
+```
 
 Aby uruchomić aplikację, wykonaj następujące polecenia:
 
