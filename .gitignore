@@ -32,7 +32,6 @@ media
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
-src/service/mailing/google_credentials.json
 
 # Gradle
 .idea/**/gradle.xml
