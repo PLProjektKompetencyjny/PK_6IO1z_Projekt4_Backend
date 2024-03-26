@@ -105,8 +105,6 @@ class CreateActivationMessage(CreateMail):
         self.message['To'] = ', '.join(self.recipients)
         return self.message
 class Mailing:
-
-
     def send_email(self, message, recipients):
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
            smtp_server.login(EMAIL, PASSWORD)
