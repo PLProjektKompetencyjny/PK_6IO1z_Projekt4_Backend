@@ -1,6 +1,6 @@
 from os import getenv
 
-postgres_local_base = 'postgresql://baeldung:baeldung@localhost/postgres'
+postgres_local_base = 'postgresql://TN_admin:NestTravel@localhost/TravelNest'
 
 
 class Config:
@@ -30,7 +30,7 @@ class ProductionConfig(Config):
 config_by_name = dict(
     dev=DevelopmentConfig,
     test=TestingConfig,
-    prod=ProductionConfig
+    prod=ProductionConfig,
 )
 
 key = Config.SECRET_KEY
