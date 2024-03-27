@@ -4,6 +4,20 @@ from src.utils.utils import db
 class ReservationView(db.Model):
     __tablename__ = 'reservation_view'
 
+    reservation_id: int
+    reservation_customer_id: int
+    reservation_status_id: int
+    reservation_number_of_adults: int
+    reservation_number_of_children: int
+    reservation_start_date: str
+    reservation_end_date: str
+    reservation_price_gross: float
+    reservation_is_paid: bool
+    reservation_room_id: int
+    reservation_room_status_id: int
+    reservation_last_modified_by: str
+    reservation_last_modified_at: str
+
     reservation_id = db.Column('reservation_id', db.Integer, primary_key=True)
     reservation_customer_id = db.Column('reservation_customer_id', db.Integer)
     reservation_status_id = db.Column('reservation_status_id', db.Integer)

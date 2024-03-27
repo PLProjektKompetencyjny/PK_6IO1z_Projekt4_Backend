@@ -4,6 +4,13 @@ from src.utils.utils import db
 class InvoiceView(db.Model):
     __tablename__ = 'invoice_view'
 
+    invoice_id: int
+    invoice_reservation_id: int
+    invoice_date: str
+    invoice_status_id: int
+    invoice_last_modified_by: str
+    invoice_last_modified_at: str
+
     invoice_id = db.Column('invoice_id', db.Integer, primary_key=True)
     invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer)
     invoice_date = db.Column('invoice_date', db.DateTime)

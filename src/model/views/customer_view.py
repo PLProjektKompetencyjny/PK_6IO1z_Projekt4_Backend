@@ -4,6 +4,19 @@ from src.utils.utils import db
 class CustomerView(db.Model):
     __tablename__ = 'customer_view'
 
+    customer_id: int
+    customer_nip_number: str
+    customer_name: str
+    customer_surname: str
+    customer_email: str
+    customer_phone: str
+    customer_city: str
+    customer_postal_code: str
+    customer_street: str
+    customer_building_number: str
+    customer_last_modified_by: str
+    customer_last_modified_at: str
+
     customer_id = db.Column('customer_id', db.Integer, primary_key=True)
     customer_nip_number = db.Column('customer_nip_number', db.String)
     customer_name = db.Column('customer_name', db.String)
