@@ -1,5 +1,5 @@
 from flask import Blueprint
-from smtplib import SMTPResponseException, SMTPException
+from smtplib import SMTPResponseException
 
 from src.service.mailing.mailservice import CreateReservationConfirmationMessage, CreateInvoiceMessage, CreateResetPasswordMessage, CreatePaymentConfirmationMessage, CreateActivationMessage, MailService
 from manage import app
