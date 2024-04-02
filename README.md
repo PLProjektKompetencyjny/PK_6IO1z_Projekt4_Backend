@@ -62,6 +62,7 @@ python3 manage.py test
 
 Opis API znajduje się w pliku `API.md`.
 
+
 ## Autorzy
 
 - Grzegorz Kubicki
@@ -69,3 +70,6 @@ Opis API znajduje się w pliku `API.md`.
 - Stanisław Horna
 - Łukasz Soboń
 - Arkadiusz Bienias
+
+## TODO
+- Obsługa dodawania adresów URL do stron aktywowania konta i resetowania hasła w mailservice
