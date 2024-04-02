@@ -1,15 +1,10 @@
 import smtplib
-from smtplib import SMTPResponseException
 from os import getenv
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from abc import  abstractmethod, ABCMeta
-
-from manage import app
-
-
 
 load_dotenv()
 EMAIL = getenv('EMAIL_ADDRESS')
@@ -31,10 +26,10 @@ class CreateMail(object, metaclass=ABCMeta):
 
 
 class CreateActivationMessage(CreateMail):
-    #path bezwzględny w env
+
     def __init__(self, data_id, recipients):
         super().__init__(data_id, recipients)
-        self.html_path = '../../templates/HTML_EMAIL/account-confirmation.html'
+        self.html_path = 'src/templates/HTML_EMAIL/account-confirmation.html'
 
     def create_message(self):
         html_message = open(self.html_path).read()
@@ -49,7 +44,7 @@ class CreateActivationMessage(CreateMail):
 class CreateResetPasswordMessage(CreateMail):
     def __init__(self, data_id, recipients):
         super().__init__(data_id, recipients)
-        self.html_path = '../../templates/HTML_EMAIL/password.html'
+        self.html_path = 'src/templates/HTML_EMAIL/password.html'
 
     def create_message(self):
 
@@ -65,7 +60,7 @@ class CreateResetPasswordMessage(CreateMail):
 class CreateReservationConfirmationMessage(CreateMail):
     def __init__(self, data_id, recipients):
         super().__init__(data_id, recipients)
-        self.html_path = '../../templates/HTML_EMAIL/reservation-confirmation.html'
+        self.html_path = 'src/templates/HTML_EMAIL/reservation-confirmation.html'
 
     def create_message(self):
         html_message = open(self.html_path).read()
@@ -80,7 +75,7 @@ class CreateReservationConfirmationMessage(CreateMail):
 class CreateInvoiceMessage(CreateMail):
     def __init__(self, data_id, recipients):
         super().__init__(data_id, recipients)
-        self.html_path = '../../templates/HTML_EMAIL/invoice.html'
+        self.html_path = 'src/templates/HTML_EMAIL/invoice.html'
 
     def create_message(self):
         html_message = open(self.html_path).read()
@@ -90,7 +85,7 @@ class CreateInvoiceMessage(CreateMail):
         html_message_body = MIMEText(html_message, 'html')
 
         self.message.attach(html_message_body)
-        with open('../../templates/HTML_EMAIL/images/Minutka_symulacjaRadia.pdf', "rb") as file:
+        with open('src/templates/HTML_EMAIL/images/Minutka_symulacjaRadia.pdf', "rb") as file:
             attachment = MIMEApplication(file.read(), _subtype='pdf')
         attachment.add_header('Content-Disposition', 'attachment', filename='Minutka_symulacjaRadia')
         self.message.attach(attachment)
@@ -103,7 +98,7 @@ class CreateInvoiceMessage(CreateMail):
 class CreatePaymentConfirmationMessage(CreateMail):
     def __init__(self, data_id, recipients):
         super().__init__(data_id, recipients)
-        self.html_path = '../../templates/HTML_EMAIL/payment.html'
+        self.html_path = 'src/templates/HTML_EMAIL/payment.html'
 
     def create_message(self):
         html_message = open(self.html_path).read()
@@ -117,14 +112,9 @@ class CreatePaymentConfirmationMessage(CreateMail):
 
 
 class MailService:
+
     def send_email(self, message, recipients):
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
                smtp_server.login(EMAIL, PASSWORD)
                smtp_server.sendmail(EMAIL, recipients, message.as_string())
-            app.logger.info(f'Email sent to {recipients}.')
 
-
-mailingObj = MailService()
-messageObj = CreateActivationMessage(100, ['sobonukasz@gmail.com', 'rukasukiik9@gmail.com'])
-message = messageObj.create_message()
-mailingObj.send_email(message, messageObj.recipients)
