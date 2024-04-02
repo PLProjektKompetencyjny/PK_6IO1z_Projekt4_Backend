@@ -1,15 +1,20 @@
 from flask import Blueprint
 from smtplib import SMTPResponseException
 
-from src.service.mailing.mailservice import CreateReservationConfirmationMessage, CreateInvoiceMessage, CreateResetPasswordMessage, CreatePaymentConfirmationMessage, CreateActivationMessage, MailService
+from src.service.mailing.mailservice import (CreateReservationConfirmationMessage, CreateInvoiceMessage,
+                                             CreateResetPasswordMessage, CreatePaymentConfirmationMessage,
+                                             CreateActivationMessage, MailService)
+
 from manage import app
+from src import mailing
 
-mailing = Blueprint('mailing', __name__)
 
-@mailing.route('/send-mail/<int:data_id>/<string:address/<int:message_type>')
-def send_mail(data_id, address, message_type):
-    if data_id is None or address is None or message_type is None or message_type not in range(1,6):
-        return 406
+
+@mailing.route('/sendmail/<int:data_id>/<string:address>/<int:message_type>', methods='POST')
+def sendmail(data_id, address, message_type):
+    if data_id < 0  or not address or message_type not in range(1,6):
+        app.logger.warning(f'Invalid data passed to method')
+        return 400
 
     recipients = address.split(',')
     message = None
@@ -25,13 +30,11 @@ def send_mail(data_id, address, message_type):
         elif message_type == 5:
             message = CreatePaymentConfirmationMessage(data_id, recipients).create_message()
     except ValueError as e:
-        app.logger.error(f'Problem occurred when generating message: {e}')
+        app.logger.error(f'''Problem occurred during message generation: {str(e)}.
+                             passed data: data_id: {data_id}, address: {address}, message_type: {message_type}''')
+        return 500
     finally:
-        app.logger.info(f'Message created with id: {data_id} and type: {message_type}')
-
-    if message is None:
-        app.logger.warning('Incorrect value passed to method. Message type has to be between 1 and 5!')
-        return 406
+        app.logger.info(f'Message created with id of data: {data_id} and type: {message_type}')
 
     try:
         MailService().send_email(message, recipients)
@@ -39,8 +42,10 @@ def send_mail(data_id, address, message_type):
         error_code = e.smtp_code
         error_message = e.smtp_error
         app.logger.error(f'Error with sending email with SMTP. Code: {error_code}. Message: {error_message}')
+        return 503
     except ValueError as e:
-        app.logger.error(f'Value error: {e}')
+        app.logger.error(f'Value error: {str(e)}')
+        return 500
     finally:
-        app.logger.info(f'Mail to {recipients} has been sent successfully.')
-    return 204
+        app.logger.info(f'Mail to {recipients} with message type {message_type} has been sent successfully.')
+    return 200
