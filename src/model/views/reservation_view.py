@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from src.utils.utils import db
 
 
@@ -9,8 +11,8 @@ class ReservationView(db.Model):
     reservation_status_id: int
     reservation_number_of_adults: int
     reservation_number_of_children: int
-    reservation_start_date: str
-    reservation_end_date: str
+    reservation_start_date: datetime
+    reservation_end_date: datetime
     reservation_price_gross: float
     reservation_is_paid: bool
     reservation_room_id: int
