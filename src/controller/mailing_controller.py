@@ -1,6 +1,7 @@
-from smtplib import SMTPResponseException
 from flask import request, Blueprint
 from flask import current_app as app
+
+from smtplib import SMTPResponseException
 from http import HTTPStatus
 
 from src.service.mailing.mailservice import (CreateReservationConfirmationMessage, CreateInvoiceMessage,
@@ -25,7 +26,7 @@ def SelectMessageCreator(message_type, data_id, recipients):
     if message_type == 5:
         return CreatePaymentConfirmationMessage(data_id, recipients).create_message()
 
-@mailing.route('/sendmail', methods=['POST'])
+@mailing.route('/sendmail', methods=['GET'])
 def sendmail():
     data_id = request.args.get('data_id', type=int)
     address = request.args.get('address', type=str, default='')
