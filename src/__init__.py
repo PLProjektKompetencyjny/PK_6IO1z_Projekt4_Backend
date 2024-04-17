@@ -1,11 +1,14 @@
 from flask import Flask, Blueprint
 
 from logging.config import dictConfig
+from dotenv import load_dotenv
 
 from .config import config_by_name, LOGGING_CONFIG
 from .utils import db, flask_bcrypt
 from .controller.hello import hello
 from src.controller.mailing_controller import mailing
+
+load_dotenv()
 
 def create_app(config_name):
     app = Flask('TravelNest')

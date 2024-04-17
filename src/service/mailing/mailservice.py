@@ -6,7 +6,6 @@ from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from abc import  abstractmethod, ABCMeta
 
-load_dotenv()
 EMAIL = getenv('EMAIL_ADDRESS')
 PASSWORD = getenv('EMAIL_PASS')
 LOGO_PATH = getenv('LOGO_HTTPS_PATH')
