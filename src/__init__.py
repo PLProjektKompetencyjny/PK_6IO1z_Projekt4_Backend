@@ -5,7 +5,7 @@ from logging.config import dictConfig
 from .config import config_by_name, LOGGING_CONFIG
 from .controller.database import test_database
 from .utils.utils import db
-
+from .controller.invoice_controller import invoice_controller
 
 def create_app(config_name):
     app = Flask('TravelNest')
@@ -14,6 +14,8 @@ def create_app(config_name):
     dictConfig(LOGGING_CONFIG)
     db.init_app(app)
 
+
+    app.register_blueprint(invoice_controller)
     app.register_blueprint(test_database)
 
     return app
