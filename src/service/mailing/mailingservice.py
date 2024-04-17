@@ -5,6 +5,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from abc import  abstractmethod, ABCMeta
 
+class MissingEmailAddress(Exception):
+    pass
+class MissingPassword(Exception):
+    pass
 
 class BasicMail(object, metaclass=ABCMeta):
     def __init__(self, data_id, recipients):
@@ -14,6 +18,9 @@ class BasicMail(object, metaclass=ABCMeta):
         self.dataID = data_id
         self.logo_path = getenv('LOGO_HTTPS_PATH')
         self.__email = getenv('EMAIL_ADDRESS')
+
+        if self.__email is None:
+            raise ValueError
 
     def get_email(self):
         return self.__email
@@ -113,6 +120,12 @@ class MailingService:
     def __init__(self):
         self.__EMAIL = getenv('EMAIL_ADDRESS')
         self.__PASSWORD = getenv('EMAIL_PASS')
+
+        if self.__EMAIL is None:
+           raise MissingEmailAddress
+        if self.__PASSWORD is None:
+           raise MissingPassword
+
     def send_email(self, message, recipients):
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
                smtp_server.login(self.__EMAIL, self.__PASSWORD)
