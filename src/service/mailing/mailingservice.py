@@ -3,12 +3,16 @@ from os import getenv
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from abc import  abstractmethod, ABCMeta
+from abc import abstractmethod, ABCMeta
+
 
 class MissingEmailAddress(Exception):
     pass
+
+
 class MissingPassword(Exception):
     pass
+
 
 class BasicMail(object, metaclass=ABCMeta):
     def __init__(self, data_id, recipients):
@@ -46,13 +50,13 @@ class ActivationMessageMail(BasicMail):
         self.message['To'] = ', '.join(self.recipients)
         return self.message
 
+
 class ResetPasswordMessageMail(BasicMail):
     def __init__(self, data_id, recipients):
         super().__init__(data_id, recipients)
         self.html_path = 'src/templates/HTML_EMAIL/password.html'
 
     def create_message(self):
-
         html_message = open(self.html_path).read()
         html_message = html_message.replace('{logo_path}', self.logo_path).replace('{reset_password}', 'onet.pl')
 
@@ -61,6 +65,7 @@ class ResetPasswordMessageMail(BasicMail):
         self.message['From'] = self.get_email()
         self.message['To'] = ', '.join(self.recipients)
         return self.message
+
 
 class ReservationConfirmationMessageMail(BasicMail):
     def __init__(self, data_id, recipients):
@@ -76,6 +81,7 @@ class ReservationConfirmationMessageMail(BasicMail):
         self.message['From'] = self.get_email()
         self.message['To'] = ', '.join(self.recipients)
         return self.message
+
 
 class InvoiceMessageMail(BasicMail):
     def __init__(self, data_id, recipients):
@@ -100,6 +106,7 @@ class InvoiceMessageMail(BasicMail):
         self.message['To'] = ', '.join(self.recipients)
         return self.message
 
+
 class PaymentConfirmationMessageMail(BasicMail):
     def __init__(self, data_id, recipients):
         super().__init__(data_id, recipients)
@@ -118,16 +125,15 @@ class PaymentConfirmationMessageMail(BasicMail):
 
 class MailingService:
     def __init__(self):
-        self.__EMAIL = getenv('EMAIL_ADDRESS')
-        self.__PASSWORD = getenv('EMAIL_PASS')
+        self.__email = getenv('EMAIL_ADDRESS')
+        self.__password = getenv('EMAIL_PASS')
 
-        if self.__EMAIL is None:
-           raise MissingEmailAddress
-        if self.__PASSWORD is None:
-           raise MissingPassword
+        if self.__email is None:
+            raise MissingEmailAddress
+        if self.__password is None:
+            raise MissingPassword
 
     def send_email(self, message, recipients):
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-               smtp_server.login(self.__EMAIL, self.__PASSWORD)
-               smtp_server.sendmail(self.__EMAIL, recipients, message.as_string())
-
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+            smtp_server.login(self.__email, self.__password)
+            smtp_server.sendmail(self.__email, recipients, message.as_string())
