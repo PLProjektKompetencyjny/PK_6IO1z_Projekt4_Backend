@@ -22,7 +22,8 @@ class InvoiceGenerator:
                                     ).filter(
                                         InvoiceView.invoice_id == some_id
                                     ).first()
-
+        self.invoice_date = self.invoice_view_details.invoice_date.strftime('%m-%d-%Y')
+        self.invoice_id = self.invoice_view_details.invoice_id
         self.customer_details = session.query(
                                     CustomerView
                                 ).join(
@@ -62,29 +63,29 @@ class InvoiceGenerator:
         self.reservation_id = self.reservation_details[0][0]
 
 
-        tax = tax
-        tax_decimal = ((100-tax)/100)
+        self.tax = tax
+        self.tax_decimal = ((100-self.tax)/100)
         self.rooms_details = []
-        gross_prices = []
-        net_prices =[]
+        self.gross_prices = []
+        self.net_prices =[]
 
         for room in self.reservation_details:
-            gross_prices.append((room[4].days * room[5]))
+            self.gross_prices.append((room[4].days * room[5]))
 
-            net_prices.append(round(gross_prices[-1] * tax_decimal, 2))
+            self.net_prices.append(round(self.gross_prices[-1] * self.tax_decimal, 2))
 
             self.rooms_details.append([room[1],
                                        f'Adults: {room[2]}, children: {room[3]}',
                                        room[4].days,
-                                       round(room[5]*tax_decimal, 2),
-                                       net_prices[-1]]
+                                       round(room[5]*self.tax_decimal, 2),
+                                       self.net_prices[-1]]
                                       )
 
         self.template_path = "../../templates/INVOICE/Invoice_template.docx"
 
-        self.data = {'id': some_id,
+        self.data = {'id': self.invoice_id,
                      'reservation_id': self.reservation_id,
-                     'invoice_date': self.invoice_view_details.invoice_date,
+                     'invoice_date': self.invoice_date,
                      'name': f'{self.customer_details.customer_name} {self.customer_details.customer_surname}' ,
                      'address': f'{self.customer_details.customer_street} {self.customer_details.customer_building_number}, '
                                 f'{self.customer_details.customer_postal_code} {self.customer_details.customer_city}',
@@ -92,13 +93,14 @@ class InvoiceGenerator:
                      'phone': self.customer_details.customer_phone,
                      'tax': f'{tax}%',
                      'nip':self.customer_details.customer_nip_number if self.customer_details.customer_nip_number is not None else '',
-                     'net_total': sum(net_prices),
+                     'net_total': sum(self.net_prices),
                      'invoice_list': self.rooms_details,
-                     'total': sum(gross_prices)
+                     'total': sum(self.gross_prices)
                      }
+    def generate(self):
+        invoice_file_obj = docxtpl.DocxTemplate(self.template_path)
+        invoice_file_obj.render(self.data)
+        file_name = f'{self.invoice_id}_{self.invoice_date}.docx'
+        invoice_file_obj.save(file_name)
 
-        self.invoice_file_obj = docxtpl.DocxTemplate(self.template_path)
-        self.invoice_file_obj.render(self.data)
-        self.invoice_file_obj.save('test.docx')
-
-InvoiceGenerator(1,8)
+InvoiceGenerator(1,10).generate()
