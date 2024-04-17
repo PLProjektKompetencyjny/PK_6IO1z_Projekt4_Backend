@@ -76,7 +76,7 @@ class InvoiceGenerator:
             self.rooms_details.append([room[1],
                                        f'Adults: {room[2]}, children: {room[3]}',
                                        room[4].days,
-                                       room[5],
+                                       round(room[5]*tax_decimal, 2),
                                        net_prices[-1]]
                                       )
 
