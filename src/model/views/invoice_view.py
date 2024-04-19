@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from src.utils.utils import db
 
 
@@ -6,7 +8,7 @@ class InvoiceView(db.Model):
 
     invoice_id: int
     invoice_reservation_id: int
-    invoice_date: str
+    invoice_date: datetime
     invoice_status_id: int
     invoice_last_modified_by: str
     invoice_last_modified_at: str
