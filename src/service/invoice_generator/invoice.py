@@ -4,7 +4,7 @@ import docxtpl
 import subprocess
 import sys
 import re
-from os import path, remove
+from os import path, remove, getenv
 
 from src.utils.utils import db
 from src.model.views.invoice_view import InvoiceView
@@ -27,25 +27,22 @@ def convertDocxToPdf(docx_file_path: str, destination_path: str, timeout=None):
 
 class InvoiceGenerator:
     def __init__(self, reservation_id, tax):
-        self.invoice_view_details = db.session.query(
+        self.__invoice_view_details = db.session.query(
             InvoiceView
         ).filter(
             InvoiceView.invoice_reservation_id == reservation_id
         ).first()
 
-        self.invoice_date = self.invoice_view_details.invoice_date.strftime('%m-%d-%Y')
-        self.invoice_id = self.invoice_view_details.invoice_id
-
-        self.customer_details = db.session.query(
+        self.__customer_details = db.session.query(
             CustomerView
         ).join(
             ReservationView,
             onclause=ReservationView.reservation_customer_id == CustomerView.customer_id
         ).filter(
-            ReservationView.reservation_id == self.invoice_view_details.invoice_reservation_id
+            ReservationView.reservation_id == self.__invoice_view_details.invoice_reservation_id
         ).first()
 
-        self.reservation_details = db.session.query(
+        self.__reservation_details = db.session.query(
             ReservationView.reservation_id,
             ReservationView.reservation_room_id,
             ReservationView.reservation_number_of_adults,
@@ -66,53 +63,59 @@ class InvoiceGenerator:
             InvoiceView.invoice_id == reservation_id
         ).all()
 
-        self.reservation_id = self.reservation_details[0][0]
+        self.invoice_date = self.__invoice_view_details.invoice_date.strftime('%m-%d-%Y')
+        self.invoice_id = self.__invoice_view_details.invoice_id
+        self.reservation_id = self.__invoice_view_details.invoice_reservation_id
 
         self.tax = tax
         self.tax_decimal = ((100 - self.tax) / 100)
-        self.rooms_details = []
-        self.gross_prices = []
-        self.net_prices = []
+        self.__rooms_details = []
+        self.__gross_prices = []
+        self.__net_prices = []
 
-        for room in self.reservation_details:
-            self.gross_prices.append((room[4].days * room[5]))
+        for room in self.__reservation_details:
+            self.__gross_prices.append((room[4].days * room[5]))
 
-            self.net_prices.append(round(self.gross_prices[-1] * self.tax_decimal, 2))
+            self.__net_prices.append(round(self.__gross_prices[-1] * self.tax_decimal, 2))
 
-            self.rooms_details.append([room[1],
-                                       f'Adults: {room[2]}, children: {room[3]}',
-                                       room[4].days,
-                                       round(room[5] * self.tax_decimal, 2),
-                                       self.net_prices[-1]]
-                                      )
+            self.__rooms_details.append([room[1],
+                                         f'Adults: {room[2]}, children: {room[3]}',
+                                         room[4].days,
+                                         round(room[5] * self.tax_decimal, 2),
+                                         self.__net_prices[-1]]
+                                        )
 
-        self.template_path = "src/templates/INVOICE/Invoice_template.docx"
+        self.template_path = getenv('INVOICE_TEMPLATE_PATH', default='src/templates/INVOICE/Invoice_template.docx')
 
-        self.data = {'id': self.invoice_id,
-                     'reservation_id': self.reservation_id,
-                     'invoice_date': self.invoice_date,
-                     'name': f'{self.customer_details.customer_name} {self.customer_details.customer_surname}',
-                     'address': f'{self.customer_details.customer_street} {self.customer_details.customer_building_number}, '
-                                f'{self.customer_details.customer_postal_code} {self.customer_details.customer_city}',
-                     'mail': self.customer_details.customer_email,
-                     'phone': self.customer_details.customer_phone,
-                     'tax': f'{tax}%',
-                     'nip': self.customer_details.customer_nip_number if self.customer_details.customer_nip_number is not None else '',
-                     'net_total': sum(self.net_prices),
-                     'invoice_list': self.rooms_details,
-                     'total': sum(self.gross_prices)
-                     }
+        self.__invoice_template_data = {'id': self.invoice_id,
+                                        'reservation_id': self.reservation_id,
+                                        'invoice_date': self.invoice_date,
+                                        'name': f'{self.__customer_details.customer_name} {self.__customer_details.customer_surname}',
+                                        'address': f'{self.__customer_details.customer_street} {self.__customer_details.customer_building_number}, '
+                                                   f'{self.__customer_details.customer_postal_code} {self.__customer_details.customer_city}',
+                                        'mail': self.__customer_details.customer_email,
+                                        'phone': self.__customer_details.customer_phone,
+                                        'tax': f'{tax}%',
+                                        'nip': self.__customer_details.customer_nip_number if self.__customer_details.customer_nip_number is not None else '',
+                                        'net_total': sum(self.__net_prices),
+                                        'invoice_list': self.__rooms_details,
+                                        'total': sum(self.__gross_prices)
+                                        }
 
     def generate(self):
         invoice_file_obj = docxtpl.DocxTemplate(self.template_path)
-        invoice_file_obj.render(self.data)
+        invoice_file_obj.render(self.__invoice_template_data)
         now = datetime.datetime.now()
-        docx_file_name = f"{self.invoice_id}_{self.invoice_date}_invoice_{now.hour}_{now.minute}_{now.second}.docx"
-        temp_path = 'temp/'
-        docx_file_name = path.join(temp_path, docx_file_name)
-        invoice_file_obj.save(docx_file_name)
+        docx_file = f"{self.invoice_id}_{self.invoice_date}_invoice_{now.hour}_{now.minute}_{now.second}.docx"
 
-        pdf_path = convertDocxToPdf(docx_file_name, temp_path)
-        remove(docx_file_name)
+        docx_file = path.join('/tmp', docx_file)
+        invoice_file_obj.save(docx_file)
 
-        return pdf_path
+        pdf_dest_path = getenv('INVOICE_PATH', default='/tmp')
+        pdf_dest_path = convertDocxToPdf(docx_file, pdf_dest_path)
+        try:
+            remove(docx_file)
+        except FileNotFoundError:
+            pass
+
+        return pdf_dest_path
