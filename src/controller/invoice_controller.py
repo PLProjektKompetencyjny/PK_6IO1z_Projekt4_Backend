@@ -1,5 +1,6 @@
-from flask import request, Blueprint, send_file
+from flask import request, Blueprint, send_file, Response
 from flask import current_app as app
+from pathlib import Path
 
 from http import HTTPStatus
 
@@ -24,7 +25,16 @@ def generate():
         app.logger.error(f'Value of reservation id must be greater than 0. Value passed {reservation_id}')
         return HTTPStatus.BAD_REQUEST.phrase, HTTPStatus.BAD_REQUEST
 
+
     invoice_generator_object = InvoiceGenerator(reservation_id, tax_value)
     invoice_file_path = invoice_generator_object.generate()
 
-    return send_file(invoice_file_path, as_attachment=True)
+    try:
+        with open(invoice_file_path, 'rb') as invoice_file:
+                invoice_response = Response(invoice_file.read(), content_type='application/pdf')
+                invoice_response.headers['Content-Disposition'] = f'filename={Path(invoice_file_path).stem}.pdf'
+    except FileNotFoundError:
+        app.logger.error(f'File with path: {invoice_file_path} could not be found')
+
+    app.logger.info(f'Invoice for reservation {reservation_id} generated successfully')
+    return invoice_response

@@ -113,6 +113,7 @@ class InvoiceGenerator:
 
         pdf_dest_path = getenv('INVOICE_PATH', default='/tmp')
         pdf_dest_path = convertDocxToPdf(docx_file, pdf_dest_path)
+
         try:
             remove(docx_file)
         except FileNotFoundError:
