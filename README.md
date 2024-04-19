@@ -34,8 +34,10 @@ pip install -r requirements.txt
 Jeśli uruchamiasz aplikację po raz pierwszy, wykonaj polecenia:
 
 ```bash
-sudo mkdir /var/log/flask-app/
-sudo chmod 777 /var/log/flask-app/
+sudo mkdir /var/log/flask-app/ 
+sudo mkdir /usr/INVOICES/
+sudo chmod 777 /var/log/flask-app/ 
+sudo chmod 777 /usr/INVOICES/
 ```
 
 Aby uruchomić aplikację, wykonaj następujące polecenia:
