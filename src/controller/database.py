@@ -35,5 +35,5 @@ def get_customers():
 
 @database.route('/reservations', methods=['GET'])
 def get_reservations():
-    reservations = UserView.query.all()
+    reservations = ReservationView.query.all()
     return jsonify(reservations)
