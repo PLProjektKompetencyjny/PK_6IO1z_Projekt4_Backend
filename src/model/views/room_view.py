@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-
+from datetime import datetime
 from src.utils.utils import db
 
 
@@ -16,8 +16,8 @@ class RoomView(db.Model):
     room_gross_price_adult: float
     room_gross_price_child: float
     room_photos_dir: str
-    room_last_modified_by: str
-    room_last_modified_at: str
+    room_last_modified_by: int
+    room_last_modified_at: datetime
 
     room_id = db.Column('room_id', db.Integer, primary_key=True)
     room_status_id = db.Column('room_status_id', db.Integer)

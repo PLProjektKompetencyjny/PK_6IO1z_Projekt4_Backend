@@ -1,5 +1,5 @@
 from src.utils.utils import db
-
+from datetime import datetime
 
 class CustomerView(db.Model):
     __tablename__ = 'customer_view'
@@ -14,8 +14,8 @@ class CustomerView(db.Model):
     customer_postal_code: str
     customer_street: str
     customer_building_number: str
-    customer_last_modified_by: str
-    customer_last_modified_at: str
+    customer_last_modified_by: int
+    customer_last_modified_at: datetime
 
     customer_id = db.Column('customer_id', db.Integer, primary_key=True)
     customer_nip_number = db.Column('customer_nip_number', db.String)
