@@ -1,5 +1,6 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from datetime import datetime
+
 from src.utils.utils import db
 
 
@@ -45,19 +46,3 @@ class RoomView(db.Model):
             f'room_last_modified_by={self.room_last_modified_by}, '
             f'room_last_modified_at={self.room_last_modified_at})>'
         )
-
-
-def make_dict(tuple_data):
-    return dict(
-        room_id=tuple_data[0],
-        room_status_id=tuple_data[1],
-        room_number_of_single_beds=tuple_data[2],
-        room_number_of_double_beds=tuple_data[3],
-        room_number_of_child_beds=tuple_data[4],
-        room_gross_price=tuple_data[5],
-        room_gross_price_adult=tuple_data[6],
-        room_gross_price_child=tuple_data[7],
-        room_photos_dir=tuple_data[8],
-        room_last_modified_by=tuple_data[9],
-        room_last_modified_at=tuple_data[10]
-    )

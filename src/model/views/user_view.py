@@ -1,6 +1,10 @@
-from src.utils.utils import db
+from dataclasses import dataclass
 from datetime import datetime
 
+from src.utils.utils import db
+
+
+@dataclass
 class UserView(db.Model):
     __tablename__ = 'user_view'
 

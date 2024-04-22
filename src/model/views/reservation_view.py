@@ -1,8 +1,10 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 from src.utils.utils import db
 
 
+@dataclass
 class ReservationView(db.Model):
     __tablename__ = 'reservation_view'
 
