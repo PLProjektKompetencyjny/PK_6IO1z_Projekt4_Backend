@@ -1,8 +1,0 @@
-from flask import Blueprint
-
-hello = Blueprint('hello', __name__)
-
-
-@hello.route('/', methods=['GET'])
-def hello_world():
-    return 'Hello, World!\n'
