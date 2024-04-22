@@ -15,7 +15,6 @@ class ReservationView(db.Model):
     reservation_number_of_children: int
     reservation_start_date: datetime
     reservation_end_date: datetime
-    reservation_is_paid: bool
     reservation_room_id: int
     reservation_room_status_id: int
     reservation_last_modified_by: int
@@ -28,7 +27,6 @@ class ReservationView(db.Model):
     reservation_number_of_children = db.Column('reservation_number_of_children', db.Integer)
     reservation_start_date = db.Column('reservation_start_date', db.DateTime)
     reservation_end_date = db.Column('reservation_end_date', db.DateTime)
-    reservation_is_paid = db.Column('reservation_is_paid', db.Boolean)
     reservation_room_id = db.Column('reservation_room_id', db.Integer)
     reservation_room_status_id = db.Column('reservation_room_status_id', db.Integer)
     reservation_last_modified_by = db.Column('reservation_last_modified_by', db.String)
@@ -43,7 +41,6 @@ class ReservationView(db.Model):
             f'reservation_number_of_children={self.reservation_number_of_children}, '
             f'reservation_start_date={self.reservation_start_date}, '
             f'reservation_end_date={self.reservation_end_date}, '
-            f'reservation_is_paid={self.reservation_is_paid}, '
             f'reservation_room_id={self.reservation_room_id}, '
             f'reservation_room_status_id={self.reservation_room_status_id}, '
             f'reservation_last_modified_by={self.reservation_last_modified_by}, '
