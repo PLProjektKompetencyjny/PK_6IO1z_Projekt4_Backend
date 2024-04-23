@@ -1,8 +1,8 @@
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.controller.response import Response
-from src.controller.types.http_status_code import HTTPStatusCode
+from src.controller.types.response import Response
+from src.controller.enums.http_status_code import HTTPStatusCode
 from src.model.views.reservation_view import ReservationView
 from src.utils.utils import sqlalchemy_error_to_dict
 
