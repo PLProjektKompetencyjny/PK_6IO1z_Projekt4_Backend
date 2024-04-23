@@ -3,7 +3,7 @@ from flask import Flask
 from logging.config import dictConfig
 
 from .config import config_by_name, LOGGING_CONFIG
-from .controller.database import database
+from src.controller.blueprint.database import database
 from .utils.utils import db
 
 
