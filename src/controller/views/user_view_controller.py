@@ -9,7 +9,7 @@ from src.controller.views.view_controller import ViewController
 
 class UserViewController(ViewController, ABC):
     def get(self):
-        return self.get_single_or_all_rows(UserView, getLogger(__name__))
+        return self.get_rows(UserView, getLogger(__name__))
 
     def post(self):
         pass

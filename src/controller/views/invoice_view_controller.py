@@ -7,7 +7,7 @@ from src.controller.views.view_controller import ViewController
 
 class InvoiceViewController(ViewController, ABC):
     def get(self):
-        return self.get_single_or_all_rows(InvoiceView, getLogger(__name__))
+        return self.get_rows(InvoiceView, getLogger(__name__))
 
     def post(self):
         pass

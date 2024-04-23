@@ -51,7 +51,7 @@ class ViewController(ABC, MethodView):
 
         return query
 
-    def get_single_or_all_rows(self, model, logger):
+    def get_rows(self, model, logger):
         filters = request.args.to_dict()
 
         try:
