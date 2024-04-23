@@ -1,39 +1,26 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint
 
-from src.model.views.room_view import RoomView
-from src.model.views.invoice_view import InvoiceView
-from src.model.views.reservation_view import ReservationView
-from src.model.views.user_view import UserView
-from src.model.views.customer_view import CustomerView
+from src.controller.views.customer_view_controller import CustomerViewController
+from src.controller.views.room_view_controller import RoomViewController
+from src.controller.views.invoice_view_controller import InvoiceViewController
+from src.controller.views.user_view_controller import UserViewController
+from src.controller.views.reservation_view_controller import ReservationViewController
 
-database = Blueprint('hello', __name__)
+database = Blueprint('database', __name__, url_prefix='/database')
 
+database.add_url_rule('/customers', view_func=CustomerViewController.as_view('customers'), methods=['GET'])
+database.add_url_rule('/customers/<int:customer_id>', view_func=CustomerViewController.as_view('customer'),
+                      methods=['GET'])
 
-@database.route('/rooms', methods=['GET'])
-def get_rooms():
-    rooms = RoomView.query.all()
-    return jsonify(rooms)
+database.add_url_rule('/rooms', view_func=RoomViewController.as_view('rooms'), methods=['GET'])
+database.add_url_rule('/rooms/<int:room_id>', view_func=RoomViewController.as_view('rooms='), methods=['GET'])
 
+database.add_url_rule('/invoices', view_func=InvoiceViewController.as_view('invoices'), methods=['GET'])
+database.add_url_rule('/invoices/<int:user_id>', view_func=InvoiceViewController.as_view('invoice'), methods=['GET'])
 
-@database.route('/invoices', methods=['GET'])
-def get_invoices():
-    invoices = InvoiceView.query.all()
-    return jsonify(invoices)
+database.add_url_rule('/users', view_func=UserViewController.as_view('users'), methods=['GET'])
+database.add_url_rule('/users/<int:user_id>', view_func=UserViewController.as_view('user'), methods=['GET'])
 
-
-@database.route('/users', methods=['GET'])
-def get_users():
-    users = UserView.query.all()
-    return jsonify(users)
-
-
-@database.route('/customers', methods=['GET'])
-def get_customers():
-    customers = CustomerView.query.all()
-    return jsonify(customers)
-
-
-@database.route('/reservations', methods=['GET'])
-def get_reservations():
-    reservations = ReservationView.query.all()
-    return jsonify(reservations)
+database.add_url_rule('/reservations', view_func=ReservationViewController.as_view('reservations'), methods=['GET'])
+database.add_url_rule('/reservations/<int:reservation_id>', view_func=ReservationViewController.as_view('reservation'),
+                      methods=['GET'])
