@@ -42,12 +42,13 @@ class ViewController(ABC, MethodView):
 
         for key, value in filters.items():
             operator = value[0]
+            column = model.__table__.c[key]
 
             if operator in filters_handlers:
                 value = value.replace(operator, '')
-                query = query.filter(filters_handlers[operator](model.__table__.c[key], value))
+                query = query.filter(filters_handlers[operator](column, value))
             else:
-                query = query.filter(model.__table__.c[key] == value)
+                query = query.filter(column == value)
 
         return query
 
