@@ -22,7 +22,7 @@ class CustomerView(db.Model):
     customer_last_modified_at: datetime
 
     customer_id = db.Column('customer_id', db.Integer, primary_key=True)
-    customer_nip_number = db.Column('customer_nip_number', db.String)
+    customer_nip_number = db.Column('customer_nip_number', db.String, nullable=True)
     customer_name = db.Column('customer_name', db.String)
     customer_surname = db.Column('customer_surname', db.String)
     customer_email = db.Column('customer_email', db.String)

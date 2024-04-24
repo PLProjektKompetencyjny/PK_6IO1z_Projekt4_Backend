@@ -21,7 +21,7 @@ class UserView(db.Model):
     user_name = db.Column('user_name', db.String)
     user_is_active = db.Column('user_is_active', db.Boolean)
     user_is_admin = db.Column('user_is_admin', db.Boolean)
-    user_last_modified_by = db.Column('user_last_modified_by', db.String)
+    user_last_modified_by = db.Column('user_last_modified_by', db.String, nullable=True)
     user_last_modified_at = db.Column('user_last_modified_at', db.DateTime)
 
     def __repr__(self):

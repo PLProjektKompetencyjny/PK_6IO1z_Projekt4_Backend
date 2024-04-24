@@ -9,6 +9,7 @@ class RoomView(db.Model):
     __tablename__ = 'room_view'
 
     room_id: int
+    room_type_id: int
     room_status_id: int
     room_number_of_single_beds: int
     room_number_of_double_beds: int
@@ -21,6 +22,7 @@ class RoomView(db.Model):
     room_last_modified_at: datetime
 
     room_id = db.Column('room_id', db.Integer, primary_key=True)
+    room_type_id = db.Column('room_type_id', db.Integer)
     room_status_id = db.Column('room_status_id', db.Integer)
     room_number_of_single_beds = db.Column('room_number_of_single_beds', db.Integer)
     room_number_of_double_beds = db.Column('room_number_of_double_beds', db.Integer)
@@ -29,12 +31,13 @@ class RoomView(db.Model):
     room_gross_price_adult = db.Column('room_gross_price_adult', db.Float)
     room_gross_price_child = db.Column('room_gross_price_child', db.Float)
     room_photos_dir = db.Column('room_photos_dir', db.String)
-    room_last_modified_by = db.Column('room_last_modified_by', db.String)
+    room_last_modified_by = db.Column('room_last_modified_by', db.String, nullable=True)
     room_last_modified_at = db.Column('room_last_modified_at', db.DateTime)
 
     def __repr__(self):
         return (
             f'<RoomView(room_id={self.room_id}, '
+            f'room_type_id={self.room_type_id}, '
             f'room_status_id={self.room_status_id}, '
             f'room_number_of_single_beds={self.room_number_of_single_beds}, '
             f'room_number_of_double_beds={self.room_number_of_double_beds}, '
