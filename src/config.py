@@ -1,6 +1,12 @@
 from os import getenv
 
-postgres_local_base = 'postgresql://TN_admin:NestTravel@localhost/TravelNest'
+ADDRESS = getenv('DB_Address', 'localhost')
+PORT = getenv('DB_Port', '5432')
+DB_NAME = getenv('DB_Name', 'TravelNest')
+USERNAME = getenv('DB_Username', 'tn_api_write')
+PASSWORD = getenv('DB_Password', 'cba')
+
+postgres_local_base = f"postgresql://{USERNAME}:{PASSWORD}@{ADDRESS}:{PORT}/{DB_NAME}"
 
 
 class Config:
