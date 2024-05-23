@@ -6,7 +6,7 @@ from src.controller.views.invoice_view_controller import InvoiceViewController
 from src.controller.views.user_view_controller import UserViewController
 from src.controller.views.reservation_view_controller import ReservationViewController
 
-database = Blueprint('database', __name__, url_prefix='/database')
+database = Blueprint('database', __name__, url_prefix='/api')
 
 database.add_url_rule('/customers', view_func=CustomerViewController.as_view('customers'), methods=['GET'])
 

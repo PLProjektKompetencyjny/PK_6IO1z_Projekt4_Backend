@@ -4,7 +4,9 @@ from logging.config import dictConfig
 
 from .config import config_by_name, LOGGING_CONFIG
 from src.controller.blueprint.database import database
-from .utils.utils import db
+from src.controller.blueprint.auth import auth
+from .utils.utils import db, jwt
+from .env import JWT_SECRET_KEY
 
 
 def create_app(config_name):
@@ -15,5 +17,8 @@ def create_app(config_name):
     db.init_app(app)
 
     app.register_blueprint(database)
+    app.register_blueprint(auth)
+
+    jwt.init_app(app)
 
     return app
