@@ -27,8 +27,8 @@ def signUp():
   password = data['password']
   nip = data['nip']
   city = data['city']
-  postalCode = data['postalCode']
-  buildingNumber = data['buildingNumber']
+  postal_code = data['postal_code']
+  building_number = data['building_number']
   street = data['street']
   firstname = data['firstname']
   surname = data['surname']
@@ -47,9 +47,9 @@ def signUp():
         customer_email=email,
         customer_phone=phone,
         customer_city=city,
-        customer_postal_code=postalCode,
+        customer_postal_code=postal_code,
         customer_street=street,
-        customer_building_number=buildingNumber,
+        customer_building_number=building_number,
         customer_last_modified_by=None,
         customer_last_modified_at=None
     )
