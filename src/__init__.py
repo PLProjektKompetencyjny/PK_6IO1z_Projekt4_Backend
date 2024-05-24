@@ -6,8 +6,8 @@ from .config import config_by_name, LOGGING_CONFIG
 from src.controller.blueprint.database import database
 from src.controller.blueprint.auth import auth
 from .utils.utils import db, jwt
-from .env import JWT_SECRET_KEY
 
+from flask_cors import CORS
 
 def create_app(config_name):
     app = Flask('TravelNest')
@@ -20,5 +20,7 @@ def create_app(config_name):
     app.register_blueprint(auth)
 
     jwt.init_app(app)
+    
+    CORS(app)
 
     return app
