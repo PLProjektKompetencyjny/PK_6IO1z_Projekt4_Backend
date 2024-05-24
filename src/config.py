@@ -1,16 +1,21 @@
-from os import getenv
+from .env import (
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_ADDRESS,
+    DB_PORT,
+    DB_NAME,
+    SECRET_KEY,
+    JWT_SECRET_KEY,
+)
 
-ADDRESS = getenv('DB_Address', 'localhost')
-PORT = getenv('DB_Port', '5432')
-DB_NAME = getenv('DB_Name', 'TravelNest')
-USERNAME = getenv('DB_Username', 'tn_api_write')
-PASSWORD = getenv('DB_Password', 'cba')
-
-postgres_local_base = f"postgresql://{USERNAME}:{PASSWORD}@{ADDRESS}:{PORT}/{DB_NAME}"
+postgres_local_base = (
+    f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_ADDRESS}:{DB_PORT}/{DB_NAME}"
+)
 
 
 class Config:
-    SECRET_KEY = getenv('SECRET_KEY', 'my_precious_secret_key')
+    SECRET_KEY = SECRET_KEY
+    JWT_SECRET_KEY = JWT_SECRET_KEY
     DEBUG = False
 
 
@@ -39,31 +44,26 @@ config_by_name = dict(
     prod=ProductionConfig,
 )
 
-key = Config.SECRET_KEY
-
 LOGGING_CONFIG = {
-    'version': 1,
+    "version": 1,
     "formatters": {
         "default": {
             "format": "[%(asctime)s] [%(module)s] - [%(levelname)s] : %(message)s",
         },
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'default',
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
         },
-        'file': {
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': '/var/log/flask-app/app.log',
-            'when': 'D',
-            'interval': 1,
-            'backupCount': 5,
-            'formatter': 'default'
+        "file": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "app.log",
+            "when": "D",
+            "interval": 1,
+            "backupCount": 5,
+            "formatter": "default",
         },
     },
-    'root': {
-        'level': 'DEBUG',
-        'handlers': ['console', 'file']
-    },
+    "root": {"level": "DEBUG", "handlers": ["console", "file"]},
 }
