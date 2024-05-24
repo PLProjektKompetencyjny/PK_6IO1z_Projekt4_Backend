@@ -1,6 +1,17 @@
-from .env import DB_USERNAME, DB_PASSWORD, DB_ADDRESS, DB_PORT, DB_NAME, SECRET_KEY, JWT_SECRET_KEY
+from .env import (
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_ADDRESS,
+    DB_PORT,
+    DB_NAME,
+    SECRET_KEY,
+    JWT_SECRET_KEY,
+)
 
-postgres_local_base = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_ADDRESS}:{DB_PORT}/{DB_NAME}"
+postgres_local_base = (
+    f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_ADDRESS}:{DB_PORT}/{DB_NAME}"
+)
+
 
 class Config:
     SECRET_KEY = SECRET_KEY
@@ -34,28 +45,25 @@ config_by_name = dict(
 )
 
 LOGGING_CONFIG = {
-    'version': 1,
+    "version": 1,
     "formatters": {
         "default": {
             "format": "[%(asctime)s] [%(module)s] - [%(levelname)s] : %(message)s",
         },
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'default',
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
         },
-        'file': {
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': 'app.log', # TODO PRZYWRÓCIĆ STARĄ WERSJĘ!
-            'when': 'D',
-            'interval': 1,
-            'backupCount': 5,
-            'formatter': 'default'
+        "file": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "/var/log/flask-app/app.log",
+            "when": "D",
+            "interval": 1,
+            "backupCount": 5,
+            "formatter": "default",
         },
     },
-    'root': {
-        'level': 'DEBUG',
-        'handlers': ['console', 'file']
-    },
+    "root": {"level": "DEBUG", "handlers": ["console", "file"]},
 }
