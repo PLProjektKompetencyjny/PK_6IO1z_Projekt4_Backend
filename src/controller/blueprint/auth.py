@@ -23,16 +23,16 @@ logger = getLogger(__name__)
 @auth.route('auth/sign-up', methods=['POST'])
 def signUp():
   data = request.get_json()
-  email = data['email']
-  password = data['password']
-  nip = data['nip']
-  city = data['city']
-  postal_code = data['postal_code']
-  building_number = data['building_number']
-  street = data['street']
-  firstname = data['firstname']
-  surname = data['surname']
-  phone = data['phone']
+  email = data['customer_email']
+  password = data['customer_password']
+  nip = data['customer_nip_number']
+  city = data['customer_city']
+  postal_code = data['customer_postal_code']
+  building_number = data['customer_building_number']
+  street = data['customer_street']
+  firstname = data['customer_firstname']
+  surname = data['customer_surname']
+  phone = data['customer_phone']
 
   try:
     new_user_id = db.session.query(
