@@ -8,6 +8,7 @@ import jwt
 from datetime import datetime, timedelta
 from logging import getLogger
 
+from src.model.views.user_view import UserView
 from src.utils.utils import db
 from src.model.views.customer_view import CustomerView
 from src.controller.types.response import Response
@@ -64,7 +65,13 @@ def signUp():
 
     token = create_access_token(payload)
 
-    return jsonify({'access_token': token})
+    return jsonify({
+      'auth_schema': 'Bearer',
+      'access_token': token,
+      'user_id': new_user_id,
+      'email': email,
+      'is_admin': False # Przy rejestracji jest to normalny użytkownik (żaden recepcjonista czy admin)
+    })
   except SQLAlchemyError as e:
     db.session.rollback()
     json_data_error = sqlalchemy_error_to_dict(e)
@@ -87,6 +94,8 @@ def signIn():
       func.authenticate_user_account(email, password)
     ).scalar()
 
+    user = db.session.query(UserView).filter(user_id == user_id).first()
+
     payload = {
       'user_id': user_id,
       'email': email,
@@ -96,8 +105,13 @@ def signIn():
     }
 
     token = create_access_token(payload)
-
-    return jsonify({'access_token': token})
+    return jsonify({
+      'auth_schema': 'Bearer',
+      'access_token': token,
+      'user_id': user_id,
+      'email': email,
+      'is_admin': user.user_is_admin
+    })
   except SQLAlchemyError as e:
     json_data_error = sqlalchemy_error_to_dict(e)
     logger.error(json_data_error)

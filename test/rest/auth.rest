@@ -1,7 +1,7 @@
 @port = 5000
 @hostname = http://localhost
 @host = {{hostname}}:{{port}}/api
-@email = ONE@wp.pl
+@email = 11@wp.pl
 @password = bbb
 
 # @name signUp
