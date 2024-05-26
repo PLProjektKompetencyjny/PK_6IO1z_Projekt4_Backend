@@ -29,7 +29,7 @@ class ReservationView(db.Model):
     reservation_end_date = db.Column('reservation_end_date', db.DateTime)
     reservation_room_id = db.Column('reservation_room_id', db.Integer)
     reservation_room_status_id = db.Column('reservation_room_status_id', db.Integer)
-    reservation_last_modified_by = db.Column('reservation_last_modified_by', db.String)
+    reservation_last_modified_by = db.Column('reservation_last_modified_by', db.String, nullable=True)
     reservation_last_modified_at = db.Column('reservation_last_modified_at', db.DateTime)
 
     def __repr__(self):
@@ -46,3 +46,5 @@ class ReservationView(db.Model):
             f'reservation_last_modified_by={self.reservation_last_modified_by}, '
             f'reservation_last_modified_at={self.reservation_last_modified_at})>'
         )
+
+
