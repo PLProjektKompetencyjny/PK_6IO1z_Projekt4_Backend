@@ -28,12 +28,10 @@ class ServiceView(db.Model):
     service_id = db.Column('service_id', db.Integer, primary_key=True)
     service_name = db.Column('service_name', db.String)
     service_price = db.Column('service_price', db.Float)
-    service_reservation_id = db.Column(
-        'service_reservation_id', db.Integer, primary_key=True)
+    service_reservation_id = db.Column('service_reservation_id', db.Integer, primary_key=True)
     service_quantity = db.Column('service_quantity', db.Float)
     service_last_modified_by = db.Column('service_last_modified_by', db.String)
-    service_last_modified_at = db.Column(
-        'service_last_modified_at', db.DateTime)
+    service_last_modified_at = db.Column('service_last_modified_at', db.DateTime)
 
     def __repr__(self):
         return (
