@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from src.utils.utils import db
-
+from sqlalchemy import func
 
 @dataclass
 class RoomView(db.Model):
@@ -46,3 +46,23 @@ class RoomView(db.Model):
             f'room_last_modified_by={self.room_last_modified_by}, '
             f'room_last_modified_at={self.room_last_modified_at})>'
         )
+
+    @staticmethod
+    def check_room_availability(room_id: int, start_date: datetime, end_date: datetime) -> int:
+        try:
+            return (
+                db
+                .session
+                .query(
+                    func
+                    .check_room_availability(room_id, start_date, end_date)
+                )
+                .scalar()
+            )
+        except:
+            (
+                db
+                .session
+                .rollback()
+            )
+            return None
