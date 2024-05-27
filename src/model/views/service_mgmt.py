@@ -8,23 +8,23 @@ from src.utils.utils import db
 class ServiceMgmt(db.Model):
     __tablename__ = 'service_mgmt'
 
-    ID: int
-    Name: str
-    Unit_price: float
-    Last_Modified_by: int
-    Last_Modified_at: datetime
+    id: int
+    name: str
+    unit_price: float
+    last_modified_by: int
+    last_modified_at: datetime
 
-    ID = db.Column('ID', db.Integer, primary_key=True)
-    Name = db.Column('Name', db.String)
-    Unit_price = db.Column('unit_price', db.Float)
-    Last_Modified_by = db.Column('Last_Modified_by', db.String)
-    Last_Modified_at = db.Column('Last_Modified_at', db.DateTime)
+    id = db.Column('id', db.Integer, primary_key=True)
+    name = db.Column('name', db.String)
+    unit_price = db.Column('unit_price', db.Float)
+    last_modified_by = db.Column('last_modified_by', db.String)
+    last_modified_at = db.Column('last_modified_at', db.DateTime)
 
     def __repr__(self):
         return (
-            f'<ServiceMgmt(ID={self.ID}, '
-            f'Name={self.Name}, '
-            f'Unit_price={self.Unit_price}, '
-            f'Last_Modified_by={self.Last_Modified_by}, '
-            f'Last_Modified_at={self.Last_Modified_at}>'
+            f'<ServiceMgmt(id={self.id}, '
+            f'name={self.name}, '
+            f'unit_price={self.unit_price}, '
+            f'last_modified_by={self.last_modified_by}, '
+            f'last_modified_at={self.last_modified_at}>'
         )
