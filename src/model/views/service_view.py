@@ -12,6 +12,7 @@ from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.utils.utils import sqlalchemy_error_to_dict
 
+
 @dataclass
 class ServiceView(db.Model):
     __tablename__ = 'service_view'
@@ -49,7 +50,7 @@ class ServiceView(db.Model):
     def get_available_services(model, logger) -> int:
         filters = request.args.to_dict()
         db_response = None
-        
+
         try:
             db_output = (
                 db
@@ -57,12 +58,16 @@ class ServiceView(db.Model):
                 .query(
                     func
                     .get_available_services()
+                    .table_valued(
+                        'service_id',
+                        'service_name',
+                        'unit_price'
+                    )
                 )
                 .all()
             )
             db_response = []
-            for entry in db_output:
-                item = entry[0].strip('()').split(',')
+            for item in db_output:
                 db_response.append(
                     ServiceView(
                         **{
@@ -77,11 +82,12 @@ class ServiceView(db.Model):
             logger.error(json_data_error)
             return Response.create(DatabaseResponseStatus.DATABASE_ERROR.get_value(), [],
                                    json_data_error.json), HTTPStatus.OK
-        
+
         row_count = len(db_response)
-        
+
         if not row_count:
-            logger.error(f"No rows found in [{model.__tablename__}] with filters [{filters}]")
+            logger.error(
+                f"No rows found in [{model.__tablename__}] with filters [{filters}]")
             return Response.create(DatabaseResponseStatus.NOT_FOUND.get_value(), [],
                                    DatabaseResponseStatus.NOT_FOUND.get_description()), HTTPStatus.OK
 
