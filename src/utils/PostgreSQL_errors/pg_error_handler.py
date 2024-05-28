@@ -1,9 +1,9 @@
-from src.utils.PostgreSQL_errors.pg_error_codes import PG_ErrorsCodes
-from src.utils.PostgreSQL_errors.describe_pg_check import PG_check_translation
-from src.utils.PostgreSQL_errors.describe_pg_unique import PG_unique_translation
-from src.utils.PostgreSQL_errors.describe_pg_fkey import PG_fkey_translation
-from src.utils.PostgreSQL_errors.describe_pg_not_nullable import PG_not_nullable_translation
-from src.utils.PostgreSQL_errors.describe_pg_custom import PG_custom_translation
+from src.utils.PostgreSQL_errors.pg_error_codes import PGErrorsCodes
+from src.utils.PostgreSQL_errors.describe_pg_check import PGCheckTranslation
+from src.utils.PostgreSQL_errors.describe_pg_unique import PGUniqueTranslation
+from src.utils.PostgreSQL_errors.describe_pg_fkey import PGFkeyTranslation
+from src.utils.PostgreSQL_errors.describe_pg_not_nullable import PGNotNullableTranslation
+from src.utils.PostgreSQL_errors.describe_pg_custom import PGCustomTranslation
 
 
 class PostgresErrorHandler:
@@ -45,54 +45,54 @@ class PostgresErrorHandler:
         
         error_code = PostgresErrorHandler.getErrorCode(e)
         
-        if PG_ErrorsCodes.NotNullViolation == error_code:
+        if PGErrorsCodes.NotNullViolation == error_code:
             return PostgresErrorHandler.__format_error_info(
-                PG_ErrorsCodes.getErrorType(error_code),
-                PG_not_nullable_translation.getMessage(
+                PGErrorsCodes.getErrorType(error_code),
+                PGNotNullableTranslation.getMessage(
                     PostgresErrorHandler.getColumnName(e),
                     PostgresErrorHandler.getTableName(e)
                 ),
                 error_code
             )
 
-        elif PG_ErrorsCodes.ForeignKeyViolation == error_code:
+        elif PGErrorsCodes.ForeignKeyViolation == error_code:
             return PostgresErrorHandler.__format_error_info(
-                PG_ErrorsCodes.getErrorType(error_code),
-                PG_fkey_translation.getMessage(
+                PGErrorsCodes.getErrorType(error_code),
+                PGFkeyTranslation.getMessage(
                     PostgresErrorHandler.getTableName(e),
                     PostgresErrorHandler.getConstraintName(e)
                 ),
                 error_code
             )
 
-        elif PG_ErrorsCodes.UniqueViolation == error_code:
+        elif PGErrorsCodes.UniqueViolation == error_code:
             return PostgresErrorHandler.__format_error_info(
-                PG_ErrorsCodes.getErrorType(error_code),
-                PG_unique_translation.getMessage(
+                PGErrorsCodes.getErrorType(error_code),
+                PGUniqueTranslation.getMessage(
                     PostgresErrorHandler.getConstraintName(e)
                 ),
                 error_code
             )
 
-        elif PG_ErrorsCodes.CheckViolation == error_code:
+        elif PGErrorsCodes.CheckViolation == error_code:
             return PostgresErrorHandler.__format_error_info(
-                PG_ErrorsCodes.getErrorType(error_code),
-                PG_check_translation.getMessage(
+                PGErrorsCodes.getErrorType(error_code),
+                PGCheckTranslation.getMessage(
                     PostgresErrorHandler.getConstraintName(e)
                 ),
                 error_code
             )
             
-        elif error_code in PG_ErrorsCodes.getCustomCode():
+        elif error_code in PGErrorsCodes.getCustomCode():
             return PostgresErrorHandler.__format_error_info(
-                PG_ErrorsCodes.getErrorType(error_code),
-                PG_custom_translation.getMessage(error_code),
+                PGErrorsCodes.getErrorType(error_code),
+                PGCustomTranslation.getMessage(error_code),
                 error_code
             )
             
         else:
             return PostgresErrorHandler.__format_error_info(
-                PG_ErrorsCodes.getDefaultCategory(),
+                PGErrorsCodes.getDefaultCategory(),
                 PostgresErrorHandler.getPrimaryMessage(e),
                 error_code
             )

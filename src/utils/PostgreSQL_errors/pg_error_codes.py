@@ -1,4 +1,4 @@
-class PG_ErrorsCodes:
+class PGErrorsCodes:
     
     __categories = {
         "23502": "Not Nullable",
@@ -27,19 +27,19 @@ class PG_ErrorsCodes:
     @staticmethod
     def getErrorType(error_code: str) -> str:
         return (
-            PG_ErrorsCodes.__categories.get(
+            PGErrorsCodes.__categories.get(
                 error_code,
-                PG_ErrorsCodes.__default_category
+                PGErrorsCodes.__default_category
             )
         )
     
     @staticmethod
     def getCustomCode() -> list[str]:
         return [
-            id for id in PG_ErrorsCodes.__categories.keys() 
-            if id not in PG_ErrorsCodes.__standard_codes
+            id for id in PGErrorsCodes.__categories.keys() 
+            if id not in PGErrorsCodes.__standard_codes
         ]
         
     @staticmethod
     def getDefaultCategory() -> str:
-        return PG_ErrorsCodes.__default_category
+        return PGErrorsCodes.__default_category

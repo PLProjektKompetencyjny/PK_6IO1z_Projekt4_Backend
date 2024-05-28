@@ -1,5 +1,5 @@
 
-class PG_check_translation:
+class PGCheckTranslation:
     __constraints = {
         
         # User_Account
@@ -51,9 +51,9 @@ class PG_check_translation:
     @staticmethod
     def getMessage(constraint_name: str) -> str:
         return (
-            PG_check_translation
+            PGCheckTranslation
             .__constraints.get(
                 constraint_name,
-                PG_check_translation.__default_message
+                PGCheckTranslation.__default_message
             )
         )

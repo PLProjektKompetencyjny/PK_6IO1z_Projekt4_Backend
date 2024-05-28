@@ -1,5 +1,5 @@
 
-class PG_not_nullable_translation:
+class PGNotNullableTranslation:
     __constraints = {
         
         "<table_name>":{
@@ -27,7 +27,7 @@ class PG_not_nullable_translation:
         
     @staticmethod
     def getMessage(column_name: str, table_name: str) -> str:
-        nullable_columns = PG_not_nullable_translation.__constraints.get(
+        nullable_columns = PGNotNullableTranslation.__constraints.get(
                 table_name,
                 None
             )
@@ -36,7 +36,7 @@ class PG_not_nullable_translation:
             return (
                 nullable_columns.get(
                     column_name,
-                    PG_not_nullable_translation.__getDefaultMessage(
+                    PGNotNullableTranslation.__getDefaultMessage(
                         column_name,
                         table_name
                     )
@@ -44,7 +44,7 @@ class PG_not_nullable_translation:
             )
         else:       
             return (
-                PG_not_nullable_translation.__getDefaultMessage(
+                PGNotNullableTranslation.__getDefaultMessage(
                     column_name,
                     table_name
                 )

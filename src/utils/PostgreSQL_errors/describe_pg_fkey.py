@@ -1,5 +1,5 @@
 
-class PG_fkey_translation:
+class PGFkeyTranslation:
     __constraints = {
         
         # Reservation_service
@@ -63,7 +63,7 @@ class PG_fkey_translation:
 
     @staticmethod
     def getMessage(table_name: str, constraint_name: str) -> str:
-        f_keys = PG_fkey_translation.__constraints.get(
+        f_keys = PGFkeyTranslation.__constraints.get(
             table_name,
             None
         )
@@ -71,10 +71,10 @@ class PG_fkey_translation:
             return (
                     f_keys.get(
                     constraint_name,
-                    PG_fkey_translation.__default_message
+                    PGFkeyTranslation.__default_message
                 )
             )
         else:
             return (
-                PG_fkey_translation.__default_message
+                PGFkeyTranslation.__default_message
             )

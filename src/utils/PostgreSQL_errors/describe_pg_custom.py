@@ -1,5 +1,5 @@
 
-class PG_custom_translation:
+class PGCustomTranslation:
     __constraints = {
         
         "23515": "Room is unavailable in selected time frame",
@@ -20,9 +20,9 @@ class PG_custom_translation:
     @staticmethod
     def getMessage(err_code: str) -> str:
         return (
-            PG_custom_translation
+            PGCustomTranslation
             .__constraints.get(
                 err_code,
-                PG_custom_translation.__default_message
+                PGCustomTranslation.__default_message
             )
         )
