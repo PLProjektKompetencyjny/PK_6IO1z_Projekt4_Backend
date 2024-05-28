@@ -1,11 +1,21 @@
 class PG_ErrorsCodes:
     
     __categories = {
-        "23502": "Nullability",
-        "23503": "Relations",
-        "23505": "Uniqueness",
-        "23514": "Validation"
+        "23502": "Not Nullable",
+        "23503": "Item does not exist",
+        "23505": "Value is not unique",
+        "23514": "Value is not valid",
+        "23515": "Room Unavailable",
+        "23516": "Email to Username",
+        "23517": "No Username Account",
+        "23518": "Too Many People",
+        "23518": "Cannot Authenticate User",
+        "23519": "User is Not Active",
+        "23520": "Cannot Change Password",
+        "23998": "No Operation Performed",
+        "23999": "Operation Not Permitted",
     }
+    __standard_codes = ["23502", "23503", "23505", "23514"]
     
     __default_category = "Unknown"
     
@@ -22,3 +32,14 @@ class PG_ErrorsCodes:
                 PG_ErrorsCodes.__default_category
             )
         )
+    
+    @staticmethod
+    def getCustomCode() -> list[str]:
+        return [
+            id for id in PG_ErrorsCodes.__categories.keys() 
+            if id not in PG_ErrorsCodes.__standard_codes
+        ]
+        
+    @staticmethod
+    def getDefaultCategory() -> str:
+        return PG_ErrorsCodes.__default_category
