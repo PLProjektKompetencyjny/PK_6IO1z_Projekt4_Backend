@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
 from sqlalchemy import func
-from sqlalchemy.exc import SQLAlchemyError, NoResultFound
+from sqlalchemy.exc import SQLAlchemyError
 from http import HTTPStatus
 import jwt
 from datetime import datetime, timedelta
@@ -122,8 +122,6 @@ def signIn():
                 "is_admin": user.user_is_admin,
             }
         )
-    except NoResultFound:
-        return jsonify(None)
     except SQLAlchemyError as e:
         json_data_error = sqlalchemy_error_to_dict(e)
         logger.error(json_data_error)
