@@ -65,13 +65,15 @@ def signUp():
 
     token = create_access_token(payload)
 
-    return jsonify({
+    response = jsonify({
       'auth_schema': 'Bearer',
       'access_token': token,
       'user_id': new_user_id,
       'email': email,
       'is_admin': False # Przy rejestracji jest to normalny użytkownik (żaden recepcjonista czy admin)
     })
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
   except SQLAlchemyError as e:
     db.session.rollback()
     json_data_error = sqlalchemy_error_to_dict(e)

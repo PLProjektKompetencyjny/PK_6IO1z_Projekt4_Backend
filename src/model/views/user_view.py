@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from src.utils.utils import db
+from sqlalchemy import func
 
 
 @dataclass
@@ -34,3 +35,79 @@ class UserView(db.Model):
             f'user_last_modified_by={self.user_last_modified_by}, '
             f'user_last_modified_at={self.user_last_modified_at})>'
         )
+
+    @staticmethod
+    def insert_user_account(login: str, user_password: str, last_modified_by_id: int = None) -> int:
+        id_to_return = None
+        try:
+            id_to_return = (
+                db
+                .session
+                .query(
+                    func
+                    .insert_user_account(login, user_password, last_modified_by_id)
+                )
+                .scalar()
+            )
+            (
+                db
+                .session
+                .commit()
+            )
+        except:
+            id_to_return = None
+            (
+                db
+                .session
+                .rollback()
+            )
+        
+        return id_to_return    
+    
+    @staticmethod
+    def update_user_account_password(login: str, new_user_password: str, old_user_password: str, last_modified_by_id: int = None) -> int:
+        id_to_return = None
+        try:
+            id_to_return =  (
+                db
+                .session
+                .query(
+                    func
+                    .update_user_account_password(login, new_user_password, old_user_password, last_modified_by_id)
+                )
+                .scalar()
+            )
+            (
+                db
+                .session
+                .commit()
+            )
+        except:
+            id_to_return = None
+            (
+                db
+                .session
+                .rollback()
+            )
+            
+        return id_to_return
+        
+    @staticmethod
+    def authenticate_user_account(login: str, user_password: str) -> int:
+        try:
+            return (
+                db
+                .session
+                .query(
+                    func
+                    .authenticate_user_account(login, user_password)
+                )
+                .scalar()
+            )
+        except:
+            (
+                db
+                .session
+                .rollback()
+            )
+            return None
