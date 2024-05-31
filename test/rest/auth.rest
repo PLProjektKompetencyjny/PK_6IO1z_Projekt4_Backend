@@ -1,24 +1,24 @@
 @port = 5000
 @hostname = http://localhost
 @host = {{hostname}}:{{port}}/api
-@email = 11@wp.pl
-@password = bbb
+@email = ADMIN
+@password = mypass
 
 # @name signUp
 POST {{host}}/auth/sign-up HTTP/1.1
 Content-Type: application/json
 
 {
-    "firstname": "John",
-    "surname": "Doe",
-    "email": "{{email}}",
-    "password": "{{password}}",
-    "nip": "0123456789",
-    "city": "City",
-    "postalCode": "00-000",
-    "buildingNumber": "1",
-    "street": "street",
-    "phone": "+48123456789"
+    "customer_firstname": "John",
+    "customer_surname": "Doe",
+    "customer_email": "{{email}}",
+    "customer_password": "{{password}}",
+    "customer_nip_number": "0123456789",
+    "customer_city": "City",
+    "customer_postal_code": "00-000",
+    "customer_building_number": "1",
+    "customer_street": "street",
+    "customer_phone": "+48123456789"
 }
 
 ###
@@ -40,4 +40,12 @@ Content-Type: application/json
 # @name secured
 POST {{host}}/auth/secured HTTP/1.1
 Authorization: Bearer {{token}}
+Content-Type: application/json
+
+
+###
+@token = {{signUp.response.body.access_token}}
+
+# @name signIn
+GET {{host}}/admin/service HTTP/1.1
 Content-Type: application/json

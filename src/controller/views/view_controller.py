@@ -33,12 +33,12 @@ class ViewController(ABC, MethodView):
         query = model.query
 
         filters_handlers = {
-            '!': lambda field, value: field != value,
-            '*': lambda field, value: field.like(f"%{value}%"),
-            '<': lambda field, value: field < value,
-            '>': lambda field, value: field > value,
-            '^': lambda field, values: field.in_(values),
-            '/': lambda field, values: between(field, values[0], values[1]),
+            "!": lambda field, value: field != value,
+            "*": lambda field, value: field.like(f"%{value}%"),
+            "<": lambda field, value: field < value,
+            ">": lambda field, value: field > value,
+            "^": lambda field, values: field.in_(values),
+            "/": lambda field, values: between(field, values[0], values[1]),
         }
 
         for key, value in filters.items():
@@ -46,10 +46,10 @@ class ViewController(ABC, MethodView):
             column = model.__table__.c[key]
 
             if operator in filters_handlers:
-                value = value.replace(operator, '')
+                value = value.replace(operator, "")
 
-                if operator == '^' or operator == '/':
-                    value = value.split('|')
+                if operator == "^" or operator == "/":
+                    value = value.split("|")
 
                 query = query.filter(filters_handlers[operator](column, value))
             else:
@@ -67,16 +67,38 @@ class ViewController(ABC, MethodView):
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
-            return Response.create(DatabaseResponseStatus.DATABASE_ERROR.get_value(), [],
-                                   json_data_error.json), HTTPStatus.OK
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json,
+                ),
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
 
         row_count = db_response.__len__()
 
         if not row_count:
-            logger.error(f"No rows found in [{model.__tablename__}] with filters [{filters}]")
-            return Response.create(DatabaseResponseStatus.NOT_FOUND.get_value(), [],
-                                   DatabaseResponseStatus.NOT_FOUND.get_description()), HTTPStatus.OK
+            logger.error(
+                f"No rows found in [{model.__tablename__}] with filters [{filters}]"
+            )
+            return (
+                Response.create(
+                    DatabaseResponseStatus.NOT_FOUND.get_value(),
+                    [],
+                    DatabaseResponseStatus.NOT_FOUND.get_description(),
+                ),
+                HTTPStatus.OK,
+            )
 
-        logger.info(f"Found [{row_count}] rows in [{model.__tablename__}] with filters [{filters}]")
-        return Response.create(DatabaseResponseStatus.OK.get_value(), db_response,
-                               DatabaseResponseStatus.OK.get_description()), HTTPStatus.OK
+        logger.info(
+            f"Found [{row_count}] rows in [{model.__tablename__}] with filters [{filters}]"
+        )
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                db_response,
+                DatabaseResponseStatus.OK.get_description(),
+            ),
+            HTTPStatus.OK,
+        )
