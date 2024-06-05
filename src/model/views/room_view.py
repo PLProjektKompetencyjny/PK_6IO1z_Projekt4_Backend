@@ -66,3 +66,4 @@ class RoomView(db.Model):
                 .rollback()
             )
             return None
+

@@ -49,3 +49,11 @@ class CustomerView(db.Model):
             f'customer_last_modified_by={self.customer_last_modified_by}, '
             f'customer_last_modified_at={self.customer_last_modified_at})>'
         )
+
+    @staticmethod
+    def get_customer_details_by_id(customer_id: int):
+        return (db.session.query(
+            CustomerView
+        ).filter(
+            CustomerView.customer_id == customer_id
+        ).first())

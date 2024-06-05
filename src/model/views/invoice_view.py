@@ -65,3 +65,11 @@ class InvoiceView(db.Model):
             .commit()
         )
         return None
+
+    @staticmethod
+    def get_invoice_details_for_single_reservation(reservation_id: int):
+        return db.session.query(
+            InvoiceView
+        ).filter(
+            InvoiceView.invoice_reservation_id == reservation_id
+        ).first()

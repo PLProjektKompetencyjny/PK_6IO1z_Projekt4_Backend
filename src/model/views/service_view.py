@@ -1,3 +1,4 @@
+from celery.beat import Service
 from flask import request
 from dataclasses import dataclass
 from datetime import datetime
@@ -92,3 +93,10 @@ class ServiceView(db.Model):
         logger.info(f"Found [{row_count}] rows in [{model.__tablename__}] with filters [{filters}]")
         return Response.create(DatabaseResponseStatus.OK.get_value(), db_response,
                                DatabaseResponseStatus.OK.get_description()), HTTPStatus.OK
+
+    @staticmethod
+    def get_services_by_reservation_id(reservation_id: int):
+        return db.session.query(Service
+                ).filter(ServiceView.service_reservation_id == reservation_id
+                ).all()
+
