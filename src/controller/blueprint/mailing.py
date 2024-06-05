@@ -79,4 +79,4 @@ def sendmail():
     return HTTPStatus.OK.phrase, HTTPStatus.OK
 
 
-mailing.add_url_rule('mailing/sendmail', view_func=sendmail, methods=['GET'])
+mailing.add_url_rule('mailing/sendmail', view_func=sendmail, methods=['POST'])
