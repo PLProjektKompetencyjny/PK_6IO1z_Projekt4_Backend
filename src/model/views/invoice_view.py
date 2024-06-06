@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.utils.utils import db
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 
+from src.utils.utils import sqlalchemy_error_to_dict
+from src.utils.utils import db
 
 @dataclass
 class InvoiceView(db.Model):
@@ -67,9 +69,16 @@ class InvoiceView(db.Model):
         return None
 
     @staticmethod
-    def get_invoice_details_for_single_reservation(reservation_id: int):
-        return db.session.query(
-            InvoiceView
-        ).filter(
-            InvoiceView.invoice_reservation_id == reservation_id
-        ).first()
+    def get_invoice_details_for_single_reservation(reservation_id: int, logger):
+        try:
+            rows = db.session.query(
+                InvoiceView
+            ).filter(
+                InvoiceView.invoice_reservation_id == reservation_id
+            ).first()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        return rows

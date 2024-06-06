@@ -95,8 +95,17 @@ class ServiceView(db.Model):
                                DatabaseResponseStatus.OK.get_description()), HTTPStatus.OK
 
     @staticmethod
-    def get_services_by_reservation_id(reservation_id: int):
-        return db.session.query(Service
-                ).filter(ServiceView.service_reservation_id == reservation_id
-                ).all()
+    def get_services_by_reservation_id(reservation_id: int, logger):
+        try:
+            rows = db.session.query(ServiceView.service_name.label('service_name'),
+                                    ServiceView.service_price.label('service_price'),
+                                    ServiceView.service_quantity.label('service_quantity')
+                    ).filter(ServiceView.service_reservation_id == reservation_id
+                    ).all()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        return rows
 
