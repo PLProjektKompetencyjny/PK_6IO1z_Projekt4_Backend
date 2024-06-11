@@ -19,7 +19,7 @@ class InvoiceViewController(ViewController, ABC):
             "reservation_id": int(request.form['reservation_id']),
         }
 
-        self.logger.info(f"New request with params: {params}")
+        self.logger.info(f"New POST request with params: {params}")
 
         result = InvoiceView.add_invoice(
             **params
@@ -28,7 +28,18 @@ class InvoiceViewController(ViewController, ABC):
         return result
 
     def put(self):
-        pass
+        params = {
+            "invoice_id": int(request.form['invoice_id']),
+            "invoice_status_id": int(request.form['invoice_status_id']),
+        }
+
+        self.logger.info(f"New PUT request with params: {params}")
+
+        result = InvoiceView.update_invoice(
+            **params
+        )
+
+        return result
 
     def delete(self):
         pass

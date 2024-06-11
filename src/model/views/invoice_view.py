@@ -4,12 +4,12 @@ from http import HTTPStatus
 from logging import getLogger
 
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import text, insert
+from sqlalchemy import text, func
 
+from src.model.enums.invoice_status import InvoiceStatus
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.controller.types.response import Response
 from src.utils.utils import db, sqlalchemy_error_to_dict
-from sqlalchemy import func
 
 
 @dataclass
@@ -72,9 +72,58 @@ class InvoiceView(db.Model):
 
     @staticmethod
     def add_invoice(reservation_id: int) -> tuple[Response, HTTPStatus]:
-        sql = insert(InvoiceView).values(
-            invoice_reservation_id=reservation_id
+        sql = text(
+            f"""    
+            INSERT INTO invoice_view (invoice_reservation_id)
+            VALUES ({reservation_id})
+            """
         )
+
+        try:
+            db.session.execute(sql)
+            db.session.commit()
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            getLogger(__name__).error(json_data_error.json)
+            db.session.rollback()
+
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json),
+                HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                [],
+                DatabaseResponseStatus.OK.get_description(),
+            ),
+            HTTPStatus.OK,
+        )
+
+    @staticmethod
+    def update_invoice(invoice_id: int, invoice_status_id: int) -> tuple[Response, HTTPStatus]:
+        if invoice_status_id == InvoiceStatus.PAID.value:
+            sql = text(
+            f"""
+                UPDATE invoice_view
+                SET 
+                    invoice_status_id = {invoice_status_id},
+                    invoice_is_paid = TRUE
+                WHERE invoice_id = {invoice_id}
+            """
+            )
+        else:
+            sql = text(
+            f"""
+                UPDATE invoice_view
+                SET invoice_status_id = {invoice_status_id}
+                WHERE invoice_id = {invoice_id}
+            """
+            )
 
         try:
             db.session.execute(sql)
