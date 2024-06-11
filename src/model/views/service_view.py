@@ -1,3 +1,5 @@
+from logging import getLogger
+
 from flask import request
 from dataclasses import dataclass
 from datetime import datetime
@@ -45,7 +47,7 @@ class ServiceView(db.Model):
         )
 
     @staticmethod
-    def get_available_services(model, logger) -> int:
+    def get_available_services(model, logger) -> tuple[Response, HTTPStatus]:
         filters = request.args.to_dict()
         db_response = None
 
@@ -78,17 +80,62 @@ class ServiceView(db.Model):
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
-            return Response.create(DatabaseResponseStatus.DATABASE_ERROR.get_value(), [],
-                                   json_data_error.json), HTTPStatus.OK
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(), [],
+                    json_data_error.json),
+                HTTPStatus.OK)
 
         row_count = len(db_response)
 
         if not row_count:
-            logger.error(
-                f"No rows found in [{model.__tablename__}] with filters [{filters}]")
-            return Response.create(DatabaseResponseStatus.NOT_FOUND.get_value(), [],
-                                   DatabaseResponseStatus.NOT_FOUND.get_description()), HTTPStatus.OK
+            logger.error(f"No rows found in [{model.__tablename__}] with filters [{filters}]")
+
+            return (
+                Response.create(
+                    DatabaseResponseStatus.NOT_FOUND.get_value(),
+                    [],
+                    DatabaseResponseStatus.NOT_FOUND.get_description()),
+                HTTPStatus.OK)
 
         logger.info(f"Found [{row_count}] rows in [{model.__tablename__}] with filters [{filters}]")
-        return Response.create(DatabaseResponseStatus.OK.get_value(), db_response,
-                               DatabaseResponseStatus.OK.get_description()), HTTPStatus.OK
+
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                db_response,
+                DatabaseResponseStatus.OK.get_description()),
+            HTTPStatus.OK)
+
+    @staticmethod
+    def add_service(reservation_id: int, sid: int, quantity: int) -> tuple[Response, HTTPStatus]:
+        entry = ServiceView(
+            service_reservation_id=reservation_id,
+            service_id=sid,
+            service_quantity=quantity
+        )
+
+        try:
+            db.session.add(entry)
+            db.session.commit()
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            getLogger(__name__).error(json_data_error.json)
+            db.session.rollback()
+
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json),
+                HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                [],
+                DatabaseResponseStatus.OK.get_description(),
+            ),
+            HTTPStatus.OK,
+        )
