@@ -1,7 +1,15 @@
 from dataclasses import dataclass
 from datetime import datetime
+from http import HTTPStatus
+from logging import getLogger
 
-from src.utils.utils import db
+from flask import Response
+from sqlalchemy.exc import SQLAlchemyError
+
+from src.controller.enums.database_response_status import DatabaseResponseStatus
+from src.controller.types.response import Response
+from src.model.views.basic_view import BasicView
+from src.utils.utils import db, sqlalchemy_error_to_dict
 
 
 @dataclass
@@ -45,4 +53,43 @@ class ReservationView(db.Model):
             f'reservation_room_status_id={self.reservation_room_status_id}, '
             f'reservation_last_modified_by={self.reservation_last_modified_by}, '
             f'reservation_last_modified_at={self.reservation_last_modified_at})>'
+        )
+
+    @staticmethod
+    def add_reservation(customer_id: int, number_of_adults: int, number_of_children: int,
+                        start_date: datetime.date,
+                        end_date: datetime.date, room_id: int) -> tuple[Response, HTTPStatus]:
+
+        entry = ReservationView(
+            reservation_customer_id=customer_id,
+            reservation_number_of_adults=number_of_adults,
+            reservation_number_of_children=number_of_children,
+            reservation_start_date=start_date,
+            reservation_end_date=end_date,
+            reservation_room_id=room_id
+        )
+
+        try:
+            db.session.add(entry)
+            db.session.commit()
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            getLogger(__name__).error(json_data_error.json)
+            db.session.rollback()
+
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json),
+                HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                [],
+                DatabaseResponseStatus.OK.get_description(),
+            ),
+            HTTPStatus.OK,
         )
