@@ -16,7 +16,7 @@ database.add_url_rule('/customers', view_func=CustomerViewController.as_view('cu
 
 database.add_url_rule('/rooms', view_func=RoomViewController.as_view('rooms'), methods=['GET'])
 
-database.add_url_rule('/invoices', view_func=InvoiceViewController.as_view('invoices'), methods=['GET'])
+database.add_url_rule('/invoices', view_func=InvoiceViewController.as_view('invoices'), methods=['GET', 'POST'])
 
 database.add_url_rule('/users', view_func=UserViewController.as_view('users'), methods=['GET'])
 
