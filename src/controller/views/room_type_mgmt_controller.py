@@ -33,7 +33,23 @@ class RoomTypeMgmtController(ViewController, ABC):
         return result
 
     def put(self):
-        pass
+        params = {
+            'room_type_id': int(request.form['id']),
+            'num_of_single_beds': int(request.form['num_of_single_beds']),
+            'num_of_double_beds': str(request.form['num_of_double_beds']),
+            'num_of_child_beds': str(request.form['num_of_child_beds']),
+            'adult_price_gross': str(request.form['adult_price_gross']),
+            'child_price_gross': str(request.form['child_price_gross']),
+            'photos_dir': str(request.form['photos_dir']),
+        }
+
+        self.logger.info(f"New POST request with params: {params}")
+
+        result = RoomTypeMgmt.update_room_type(
+            **params
+        )
+
+        return result
 
     def delete(self):
         pass

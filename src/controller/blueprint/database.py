@@ -25,7 +25,8 @@ database.add_url_rule('/reservations', view_func=ReservationViewController.as_vi
 
 database.add_url_rule('/services', view_func=ServiceViewController.as_view('services'), methods=['GET', 'POST'])
 
-database.add_url_rule('/admin/room_type', view_func=RoomTypeMgmtController.as_view('room_type'), methods=['GET', 'POST'])
+database.add_url_rule('/admin/room_type', view_func=RoomTypeMgmtController.as_view('room_type'),
+                      methods=['GET', 'POST', 'PUT'])
 
 database.add_url_rule('/admin/room', view_func=RoomMgmtController.as_view('room'), methods=['GET'])
 
