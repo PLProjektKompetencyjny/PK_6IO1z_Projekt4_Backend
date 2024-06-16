@@ -1,7 +1,13 @@
 from dataclasses import dataclass
 from datetime import datetime
+from http import HTTPStatus
+from logging import getLogger
 
-from src.utils.utils import db
+from sqlalchemy.exc import SQLAlchemyError
+
+from src.controller.enums.database_response_status import DatabaseResponseStatus
+from src.controller.types.response import Response
+from src.utils.utils import db, sqlalchemy_error_to_dict
 from sqlalchemy import func
 
 
@@ -37,6 +43,37 @@ class UserView(db.Model):
         )
 
     @staticmethod
+    def add_user(login: str, user_password: str, last_modified_by_id: int = None) -> tuple[Response, HTTPStatus]:
+        try:
+            user_id = db.session.query(
+                func.insert_user_account(login, user_password, last_modified_by_id)
+            ).scalar()
+
+            db.session.commit()
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            json_data_error = sqlalchemy_error_to_dict(e)
+            getLogger(__name__).error(json_data_error.json)
+            db.session.rollback()
+
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json),
+                HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                [{'user_id': user_id}],
+                DatabaseResponseStatus.OK.get_description(),
+            ),
+            HTTPStatus.OK,
+        )
+
+    @staticmethod
     def insert_user_account(login: str, user_password: str, last_modified_by_id: int = None) -> int:
         id_to_return = None
         try:
@@ -61,14 +98,15 @@ class UserView(db.Model):
                 .session
                 .rollback()
             )
-        
-        return id_to_return    
-    
+
+        return id_to_return
+
     @staticmethod
-    def update_user_account_password(login: str, new_user_password: str, old_user_password: str, last_modified_by_id: int = None) -> int:
+    def update_user_account_password(login: str, new_user_password: str, old_user_password: str,
+                                     last_modified_by_id: int = None) -> int:
         id_to_return = None
         try:
-            id_to_return =  (
+            id_to_return = (
                 db
                 .session
                 .query(
@@ -89,9 +127,9 @@ class UserView(db.Model):
                 .session
                 .rollback()
             )
-            
+
         return id_to_return
-        
+
     @staticmethod
     def authenticate_user_account(login: str, user_password: str) -> int:
         try:
