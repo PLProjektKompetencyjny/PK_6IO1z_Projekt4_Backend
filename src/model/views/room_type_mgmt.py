@@ -1,7 +1,14 @@
 from dataclasses import dataclass
 from datetime import datetime
+from http import HTTPStatus
+from logging import getLogger
 
-from src.utils.utils import db
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
+from src.controller.enums.database_response_status import DatabaseResponseStatus
+from src.controller.types.response import Response
+from src.utils.utils import db, sqlalchemy_error_to_dict
 
 
 @dataclass
@@ -39,4 +46,56 @@ class RoomTypeMgmt(db.Model):
             f'photos_dir={self.photos_dir}, '
             f'last_modified_by={self.last_modified_by}, '
             f'last_modified_at={self.last_modified_at}>'
+        )
+
+    @staticmethod
+    def add_room_type(num_of_single_beds: int,
+                      num_of_double_beds: int,
+                      num_of_child_beds: int,
+                      adult_price_gross: float,
+                      child_price_gross: float,
+                      photos_dir: str) -> tuple[Response, HTTPStatus]:
+
+        sql = text(
+            f"""    
+            INSERT INTO room_type_mgmt (
+            num_of_single_beds, 
+            num_of_double_beds, 
+            num_of_child_beds, 
+            adult_price_gross, 
+            child_price_gross, photos_dir)
+            VALUES (
+            {num_of_single_beds},
+            {num_of_double_beds},
+            {num_of_child_beds},
+            {adult_price_gross},
+            {child_price_gross},
+            '{photos_dir}'
+            )
+            """
+        )
+
+        try:
+            db.session.execute(sql)
+            db.session.commit()
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            getLogger(__name__).error(json_data_error.json)
+            db.session.rollback()
+
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json),
+                HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                [],
+                DatabaseResponseStatus.OK.get_description(),
+            ),
+            HTTPStatus.OK,
         )
