@@ -11,8 +11,12 @@ class ServiceViewController(ViewController, ABC):
         self.logger = getLogger(__name__)
 
     def get(self):
-        if len(request.args.to_dict().items()) == 0:
-            return ServiceView.get_available_services(ServiceView, getLogger(__name__))
+        params = request.args.to_dict()
+
+        self.logger.info(f"New GET request with params: {params}")
+
+        if len(params.items()) == 0:
+            return ServiceView.get_available_services(getLogger(__name__))
 
         return self.get_rows(ServiceView, getLogger(__name__))
 

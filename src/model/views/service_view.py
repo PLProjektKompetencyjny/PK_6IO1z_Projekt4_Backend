@@ -46,65 +46,56 @@ class ServiceView(db.Model):
         )
 
     @staticmethod
-    def get_available_services(model, logger) -> tuple[Response, HTTPStatus]:
-        filters = request.args.to_dict()
-        db_response = None
+    def get_available_services(logger) -> tuple[Response, HTTPStatus]:
+        service_id = 'service_id'
+        service_name = 'service_name'
+        unit_price = 'unit_price'
 
         try:
-            db_output = (
-                db
-                .session
-                .query(
-                    func
-                    .get_available_services()
-                    .table_valued(
-                        'service_id',
-                        'service_name',
-                        'unit_price'
-                    )
-                )
-                .all()
-            )
-            db_response = []
-            for item in db_output:
-                db_response.append(
-                    ServiceView(
-                        **{
-                            "service_id": item[0],
-                            "service_name": item[1],
-                            "service_price": item[2]
-                        }
-                    )
-                )
+            db_output = DBHandler.get_available_services()
+
+            db_response = [
+                {
+                    f'{service_id}': item[0],
+                    f'{service_name}': item[1],
+                    f'{unit_price}': item[2]
+                }
+                for item in db_output
+            ]
+
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
             return (
                 Response.create(
-                    DatabaseResponseStatus.DATABASE_ERROR.get_value(), [],
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
                     json_data_error.json),
-                HTTPStatus.OK)
+                HTTPStatus.INTERNAL_SERVER_ERROR
+            )
 
         row_count = len(db_response)
 
-        if not row_count:
-            logger.error(f"No rows found in [{model.__tablename__}] with filters [{filters}]")
+        if row_count == 0:
+            logger.info(f"Could not find any available services")
 
             return (
                 Response.create(
                     DatabaseResponseStatus.NOT_FOUND.get_value(),
                     [],
                     DatabaseResponseStatus.NOT_FOUND.get_description()),
-                HTTPStatus.OK)
+                HTTPStatus.OK
+            )
 
-        logger.info(f"Found [{row_count}] rows in [{model.__tablename__}] with filters [{filters}]")
+        logger.info(f"Found [{row_count}] available services: {db_response}")
 
         return (
             Response.create(
                 DatabaseResponseStatus.OK.get_value(),
                 db_response,
                 DatabaseResponseStatus.OK.get_description()),
-            HTTPStatus.OK)
+            HTTPStatus.OK
+        )
 
     @staticmethod
     def add_service(reservation_id: int,

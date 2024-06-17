@@ -114,3 +114,23 @@ class DBHandler:
             ),
             HTTPStatus.OK,
         )
+
+    @staticmethod
+    def get_available_services():
+        try:
+            db_output = (
+                db.session.query(
+                    func
+                    .get_available_services()
+                    .table_valued(
+                        'service_id',
+                        'service_name',
+                        'unit_price'
+                    )
+                )
+            ).all()
+
+        except SQLAlchemyError as e:
+            raise e
+
+        return db_output
