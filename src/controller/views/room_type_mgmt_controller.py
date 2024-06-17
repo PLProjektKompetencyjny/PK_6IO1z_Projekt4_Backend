@@ -45,11 +45,9 @@ class RoomTypeMgmtController(ViewController, ABC):
 
         self.logger.info(f"New POST request with params: {params}")
 
-        result = RoomTypeMgmt.update_room_type(
+        return RoomTypeMgmt.update_room_type(
             **params
         )
-
-        return result
 
     def delete(self):
         pass

@@ -21,11 +21,9 @@ class InvoiceViewController(ViewController, ABC):
 
         self.logger.info(f"New POST request with params: {params}")
 
-        result = InvoiceView.add_invoice(
+        return InvoiceView.add_invoice(
             **params
         )
-
-        return result
 
     def put(self):
         params = {
@@ -35,11 +33,9 @@ class InvoiceViewController(ViewController, ABC):
 
         self.logger.info(f"New PUT request with params: {params}")
 
-        result = InvoiceView.update_invoice(
+        return InvoiceView.update_invoice(
             **params
         )
-
-        return result
 
     def delete(self):
         pass

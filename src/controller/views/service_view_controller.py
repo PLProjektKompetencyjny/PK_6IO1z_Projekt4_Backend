@@ -29,11 +29,9 @@ class ServiceViewController(ViewController, ABC):
 
         self.logger.info(f"New POST request with params: {params}")
 
-        result = ServiceView.add_service(
+        return ServiceView.add_service(
             **params
         )
-
-        return result
 
     def put(self):
         pass

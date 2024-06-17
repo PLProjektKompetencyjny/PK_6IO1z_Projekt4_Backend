@@ -1,6 +1,5 @@
-from datetime import date, datetime
+from datetime import datetime
 from abc import ABC
-from http import HTTPStatus
 from logging import getLogger
 
 from flask import request
@@ -28,11 +27,9 @@ class ReservationViewController(ViewController, ABC):
 
         self.logger.info(f"New POST request with params: {params}")
 
-        result = ReservationView.add_reservation(
+        return ReservationView.add_reservation(
             **params
         )
-
-        return result
 
     def put(self):
         pass

@@ -25,11 +25,9 @@ class UserViewController(ViewController, ABC):
 
         self.logger.info(f"New POST request with params: {params}")
 
-        result = UserView.add_user(
+        return UserView.add_user(
             **params
         )
-
-        return result
 
     def put(self):
         pass

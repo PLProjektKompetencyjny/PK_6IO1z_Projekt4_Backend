@@ -1,4 +1,3 @@
-from flask import request
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -6,8 +5,6 @@ from http import HTTPStatus
 from sqlalchemy.exc import SQLAlchemyError
 
 from src.utils.utils import db, HTTPResponse
-from sqlalchemy import func
-
 from src.controller.db_handler import DBHandler
 from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus

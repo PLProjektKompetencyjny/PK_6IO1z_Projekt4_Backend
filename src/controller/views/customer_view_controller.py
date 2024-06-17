@@ -41,11 +41,9 @@ class CustomerViewController(ViewController, ABC):
 
         self.logger.info(f"New PUT request with params: {params}")
 
-        result = CustomerView.update_customer(
+        return CustomerView.update_customer(
             **params
         )
-
-        return result
 
     def delete(self):
         pass
