@@ -26,7 +26,7 @@ class ReservationViewController(ViewController, ABC):
             "room_id": int(request.form['room_id'])
         }
 
-        self.logger.info(f"New request with params: {params}")
+        self.logger.info(f"New POST request with params: {params}")
 
         result = ReservationView.add_reservation(
             **params

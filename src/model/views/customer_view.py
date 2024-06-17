@@ -4,7 +4,8 @@ from http import HTTPStatus
 
 from src.controller.types.response import Response
 from src.controller.db_handler import DBHandler
-from src.utils.utils import db
+from src.utils.utils import db, HTTPResponse
+
 
 @dataclass
 class CustomerView(db.Model):
@@ -62,7 +63,7 @@ class CustomerView(db.Model):
                         customer_postal_code: str,
                         customer_street: str,
                         customer_building_number: str,
-                        customer_last_modified_by: None, ) -> tuple[Response, HTTPStatus]:
+                        customer_last_modified_by: None, ) -> HTTPResponse:
         sql = (
             f"""    
             UPDATE customer_view

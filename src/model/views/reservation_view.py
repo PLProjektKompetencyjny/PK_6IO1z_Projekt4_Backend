@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 from src.controller.types.response import Response
 from src.controller.db_handler import DBHandler
-from src.utils.utils import db
+from src.utils.utils import db, HTTPResponse
 
 
 @dataclass
@@ -56,7 +56,7 @@ class ReservationView(db.Model):
                         number_of_children: int,
                         start_date: datetime.date,
                         end_date: datetime.date,
-                        room_id: int) -> tuple[Response, HTTPStatus]:
+                        room_id: int) -> HTTPResponse:
         sql = (
             f"""    
             INSERT INTO reservation_view (

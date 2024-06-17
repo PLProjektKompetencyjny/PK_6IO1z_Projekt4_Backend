@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
-from http import HTTPStatus
 
 from sqlalchemy import func
 
-from src.controller.types.response import Response
 from src.controller.db_handler import DBHandler
-from src.utils.utils import db
+from src.utils.utils import db, HTTPResponse
 
 
 @dataclass
@@ -43,99 +41,23 @@ class UserView(db.Model):
     @staticmethod
     def add_user(login: str,
                  user_password: str,
-                 last_modified_by_id: int = None) -> tuple[Response, HTTPStatus]:
+                 last_modified_by_id: int = None) -> HTTPResponse:
         return DBHandler.run_sql_function_scalar(
             func.insert_user_account, login, user_password, last_modified_by_id
         )
 
     @staticmethod
-    def update_user_password(login: str, new_user_password: str,
+    def update_user_password(login: str,
+                             new_user_password: str,
                              old_user_password: str,
-                             last_modified_by_id: int = None) -> tuple[Response, HTTPStatus]:
+                             last_modified_by_id: int = None) -> HTTPResponse:
         return DBHandler.run_sql_function_scalar(
             func.update_user_account_password, login, new_user_password, old_user_password, last_modified_by_id
         )
 
     @staticmethod
     def authenticate_user(login: str,
-                          user_password: str) -> tuple[Response, HTTPStatus]:
+                          user_password: str) -> HTTPResponse:
         return DBHandler.run_sql_function_scalar(
             func.authenticate_user_account, login, user_password
         )
-
-    @staticmethod
-    def insert_user_account(login: str, user_password: str, last_modified_by_id: int = None) -> int:
-        id_to_return = None
-        try:
-            id_to_return = (
-                db
-                .session
-                .query(
-                    func
-                    .insert_user_account(login, user_password, last_modified_by_id)
-                )
-                .scalar()
-            )
-            (
-                db
-                .session
-                .commit()
-            )
-        except:
-            id_to_return = None
-            (
-                db
-                .session
-                .rollback()
-            )
-
-        return id_to_return
-
-    @staticmethod
-    def update_user_account_password(login: str, new_user_password: str, old_user_password: str,
-                                     last_modified_by_id: int = None) -> int:
-        id_to_return = None
-        try:
-            id_to_return = (
-                db
-                .session
-                .query(
-                    func
-                    .update_user_account_password(login, new_user_password, old_user_password, last_modified_by_id)
-                )
-                .scalar()
-            )
-            (
-                db
-                .session
-                .commit()
-            )
-        except:
-            id_to_return = None
-            (
-                db
-                .session
-                .rollback()
-            )
-
-        return id_to_return
-
-    @staticmethod
-    def authenticate_user_account(login: str, user_password: str) -> int:
-        try:
-            return (
-                db
-                .session
-                .query(
-                    func
-                    .authenticate_user_account(login, user_password)
-                )
-                .scalar()
-            )
-        except:
-            (
-                db
-                .session
-                .rollback()
-            )
-            return None

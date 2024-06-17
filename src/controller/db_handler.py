@@ -6,12 +6,12 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.controller.types.response import Response
-from src.utils.utils import db, sqlalchemy_error_to_dict
+from src.utils.utils import db, sqlalchemy_error_to_dict, HTTPResponse
 
 
 class DBHandler:
     @staticmethod
-    def run_sql_query(query: str) -> tuple[Response, HTTPStatus]:
+    def run_sql_query(query: str) -> HTTPResponse:
         try:
             db.session.execute(text(query))
             db.session.commit()
@@ -53,7 +53,7 @@ class DBHandler:
         return 0
 
     @staticmethod
-    def run_sql_function_all(db_function, *args):
+    def run_sql_function_all(db_function, *args) -> HTTPResponse:
         try:
             db.session.query(
                 db_function(*args)
@@ -83,7 +83,7 @@ class DBHandler:
         )
 
     @staticmethod
-    def run_sql_function_scalar(db_function: func, *args):
+    def run_sql_function_scalar(db_function: func, *args) -> HTTPResponse:
         try:
             result = db.session.query(
                 db_function(*args)
@@ -97,11 +97,13 @@ class DBHandler:
             getLogger(__name__).error(json_data_error.json)
             db.session.rollback()
 
-            return (Response.create(
-                DatabaseResponseStatus.DATABASE_ERROR.get_value(),
-                [],
-                json_data_error.json),
-                    HTTPStatus.INTERNAL_SERVER_ERROR)
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json),
+                HTTPStatus.INTERNAL_SERVER_ERROR
+            )
 
         return (
             Response.create(

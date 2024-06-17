@@ -54,18 +54,19 @@ class RoomTypeMgmt(db.Model):
         sql = (
             f"""    
             INSERT INTO room_type_mgmt (
-            num_of_single_beds, 
-            num_of_double_beds, 
-            num_of_child_beds, 
-            adult_price_gross, 
-            child_price_gross, photos_dir)
+                num_of_single_beds, 
+                num_of_double_beds, 
+                num_of_child_beds, 
+                adult_price_gross, 
+                child_price_gross, photos_dir
+            )
             VALUES (
-            {num_of_single_beds},
-            {num_of_double_beds},
-            {num_of_child_beds},
-            {adult_price_gross},
-            {child_price_gross},
-            '{photos_dir}'
+                {num_of_single_beds},
+                {num_of_double_beds},
+                {num_of_child_beds},
+                {adult_price_gross},
+                {child_price_gross},
+                '{photos_dir}'
             )
             """
         )

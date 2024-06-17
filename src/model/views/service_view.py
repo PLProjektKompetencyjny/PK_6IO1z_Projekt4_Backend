@@ -5,7 +5,7 @@ from datetime import datetime
 from http import HTTPStatus
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.utils.utils import db
+from src.utils.utils import db, HTTPResponse
 from sqlalchemy import func
 
 from src.controller.db_handler import DBHandler
@@ -46,7 +46,7 @@ class ServiceView(db.Model):
         )
 
     @staticmethod
-    def get_available_services(logger) -> tuple[Response, HTTPStatus]:
+    def get_available_services(logger) -> HTTPResponse:
         service_id = 'service_id'
         service_name = 'service_name'
         unit_price = 'unit_price'
@@ -100,7 +100,7 @@ class ServiceView(db.Model):
     @staticmethod
     def add_service(reservation_id: int,
                     sid: int,
-                    quantity: int) -> tuple[Response, HTTPStatus]:
+                    quantity: int) -> HTTPResponse:
         sql = (
             f"""
             INSERT INTO service_view (

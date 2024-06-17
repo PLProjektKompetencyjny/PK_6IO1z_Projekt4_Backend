@@ -7,7 +7,7 @@ from sqlalchemy import func
 from src.controller.db_handler import DBHandler
 from src.model.enums.invoice_status import InvoiceStatus
 from src.controller.types.response import Response
-from src.utils.utils import db
+from src.utils.utils import db, HTTPResponse
 
 
 @dataclass
@@ -57,7 +57,7 @@ class InvoiceView(db.Model):
         )
 
     @staticmethod
-    def add_invoice(reservation_id: int) -> tuple[Response, HTTPStatus]:
+    def add_invoice(reservation_id: int) -> HTTPResponse:
         sql = (
             f"""    
             INSERT INTO 
@@ -70,7 +70,7 @@ class InvoiceView(db.Model):
         return DBHandler.run_sql_query(sql)
 
     @staticmethod
-    def update_invoice(invoice_id: int, invoice_status_id: int) -> tuple[Response, HTTPStatus]:
+    def update_invoice(invoice_id: int, invoice_status_id: int) -> HTTPResponse:
         if invoice_status_id == InvoiceStatus.PAID.value:
             sql = (
                 f"""
