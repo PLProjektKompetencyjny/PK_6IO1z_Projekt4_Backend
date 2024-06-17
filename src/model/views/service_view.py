@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from src.utils.utils import db
 from sqlalchemy import func
 
-from src.controller.views.db_handler import DBHandler
+from src.controller.db_handler import DBHandler
 from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.utils.utils import sqlalchemy_error_to_dict

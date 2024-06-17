@@ -6,10 +6,10 @@ from src.utils.PostgreSQL_errors.pg_error_handler import PostgresErrorHandler
 db = SQLAlchemy()
 jwt = JWTManager()
 
+
 def sqlalchemy_error_to_dict(e):
-    
     return (
         jsonify(
             PostgresErrorHandler.getErrorInfo(e)
-            )
         )
+    )

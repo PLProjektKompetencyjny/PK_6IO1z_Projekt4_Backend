@@ -3,7 +3,7 @@ from datetime import datetime
 from http import HTTPStatus
 
 from src.controller.types.response import Response
-from src.controller.views.db_handler import DBHandler
+from src.controller.db_handler import DBHandler
 from src.utils.utils import db
 
 

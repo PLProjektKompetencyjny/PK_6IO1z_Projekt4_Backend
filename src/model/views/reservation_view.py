@@ -1,15 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
-from logging import getLogger
 
-from flask import Response
-from sqlalchemy.exc import SQLAlchemyError
-
-from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.controller.types.response import Response
-from src.controller.views.db_handler import DBHandler
-from src.utils.utils import db, sqlalchemy_error_to_dict
+from src.controller.db_handler import DBHandler
+from src.utils.utils import db
 
 
 @dataclass

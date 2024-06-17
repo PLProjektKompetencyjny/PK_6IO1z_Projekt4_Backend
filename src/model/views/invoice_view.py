@@ -4,10 +4,10 @@ from http import HTTPStatus
 
 from sqlalchemy import func
 
-from src.controller.views.db_handler import DBHandler
+from src.controller.db_handler import DBHandler
 from src.model.enums.invoice_status import InvoiceStatus
 from src.controller.types.response import Response
-from src.utils.utils import db, sqlalchemy_error_to_dict
+from src.utils.utils import db
 
 
 @dataclass

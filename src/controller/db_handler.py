@@ -38,6 +38,21 @@ class DBHandler:
         )
 
     @staticmethod
+    def run_sql_query_raw(query: str) -> int:
+        try:
+            db.session.execute(text(query))
+            db.session.commit()
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            getLogger(__name__).error(json_data_error.json)
+            db.session.rollback()
+
+            return 1
+
+        return 0
+
+    @staticmethod
     def run_sql_function_all(db_function, *args):
         try:
             db.session.query(
