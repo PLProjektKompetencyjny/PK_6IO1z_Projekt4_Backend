@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
-from logging import getLogger
 
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import text, func
+from sqlalchemy import func
 
+from src.controller.views.db_handler import DBHandler
 from src.model.enums.invoice_status import InvoiceStatus
-from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.controller.types.response import Response
 from src.utils.utils import db, sqlalchemy_error_to_dict
 
@@ -54,98 +52,45 @@ class InvoiceView(db.Model):
 
     @staticmethod
     def calculate_invoice_price(reservation_id: int) -> None:
-        (
-            db
-            .session
-            .query(
-                func
-                .calculate_invoice_price(reservation_id)
-            )
-            .all()
+        DBHandler.run_sql_function_all(
+            func.calculate_invoice_price, reservation_id
         )
-        (
-            db
-            .session
-            .commit()
-        )
-        return None
 
     @staticmethod
     def add_invoice(reservation_id: int) -> tuple[Response, HTTPStatus]:
-        sql = text(
+        sql = (
             f"""    
-            INSERT INTO invoice_view (invoice_reservation_id)
-            VALUES ({reservation_id})
+            INSERT INTO 
+                invoice_view (invoice_reservation_id)
+            VALUES 
+                ({reservation_id})
             """
         )
 
-        try:
-            db.session.execute(sql)
-            db.session.commit()
-
-        except SQLAlchemyError as e:
-            json_data_error = sqlalchemy_error_to_dict(e)
-            getLogger(__name__).error(json_data_error.json)
-            db.session.rollback()
-
-            return (
-                Response.create(
-                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
-                    [],
-                    json_data_error.json),
-                HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        return (
-            Response.create(
-                DatabaseResponseStatus.OK.get_value(),
-                [],
-                DatabaseResponseStatus.OK.get_description(),
-            ),
-            HTTPStatus.OK,
-        )
+        return DBHandler.run_sql_query(sql)
 
     @staticmethod
     def update_invoice(invoice_id: int, invoice_status_id: int) -> tuple[Response, HTTPStatus]:
         if invoice_status_id == InvoiceStatus.PAID.value:
-            sql = text(
-            f"""
+            sql = (
+                f"""
                 UPDATE invoice_view
                 SET 
                     invoice_status_id = {invoice_status_id},
                     invoice_is_paid = TRUE
-                WHERE invoice_id = {invoice_id}
+                WHERE 
+                    invoice_id = {invoice_id}
             """
             )
         else:
-            sql = text(
-            f"""
+            sql = (
+                f"""
                 UPDATE invoice_view
-                SET invoice_status_id = {invoice_status_id}
-                WHERE invoice_id = {invoice_id}
+                SET 
+                    invoice_status_id = {invoice_status_id}
+                WHERE 
+                    invoice_id = {invoice_id}
             """
             )
 
-        try:
-            db.session.execute(sql)
-            db.session.commit()
-
-        except SQLAlchemyError as e:
-            json_data_error = sqlalchemy_error_to_dict(e)
-            getLogger(__name__).error(json_data_error.json)
-            db.session.rollback()
-
-            return (
-                Response.create(
-                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
-                    [],
-                    json_data_error.json),
-                HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        return (
-            Response.create(
-                DatabaseResponseStatus.OK.get_value(),
-                [],
-                DatabaseResponseStatus.OK.get_description(),
-            ),
-            HTTPStatus.OK,
-        )
+        return DBHandler.run_sql_query(sql)

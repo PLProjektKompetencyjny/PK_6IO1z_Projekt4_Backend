@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.controller.types.response import Response
+from src.controller.views.db_handler import DBHandler
 from src.utils.utils import db, sqlalchemy_error_to_dict
 
 
@@ -55,40 +56,31 @@ class ReservationView(db.Model):
         )
 
     @staticmethod
-    def add_reservation(customer_id: int, number_of_adults: int, number_of_children: int,
+    def add_reservation(customer_id: int,
+                        number_of_adults: int,
+                        number_of_children: int,
                         start_date: datetime.date,
-                        end_date: datetime.date, room_id: int) -> tuple[Response, HTTPStatus]:
-
-        entry = ReservationView(
-            reservation_customer_id=customer_id,
-            reservation_number_of_adults=number_of_adults,
-            reservation_number_of_children=number_of_children,
-            reservation_start_date=start_date,
-            reservation_end_date=end_date,
-            reservation_room_id=room_id
+                        end_date: datetime.date,
+                        room_id: int) -> tuple[Response, HTTPStatus]:
+        sql = (
+            f"""    
+            INSERT INTO reservation_view (
+                reservation_customer_id, 
+                room_number_of_adults, 
+                room_number_of_children, 
+                reservation_start_date, 
+                reservation_end_date, 
+                reservation_room_id
+            )
+            VALUES (
+                {customer_id}, 
+                {number_of_adults}, 
+                {number_of_children}, 
+                '{start_date.strftime('%Y-%m-%d 15:00:00')}', 
+                '{end_date.strftime('%Y-%m-%d 12:00:00')}', 
+                {room_id}
+            )
+            """
         )
 
-        try:
-            db.session.add(entry)
-            db.session.commit()
-
-        except SQLAlchemyError as e:
-            json_data_error = sqlalchemy_error_to_dict(e)
-            getLogger(__name__).error(json_data_error.json)
-            db.session.rollback()
-
-            return (
-                Response.create(
-                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
-                    [],
-                    json_data_error.json),
-                HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        return (
-            Response.create(
-                DatabaseResponseStatus.OK.get_value(),
-                [],
-                DatabaseResponseStatus.OK.get_description(),
-            ),
-            HTTPStatus.OK,
-        )
+        return DBHandler.run_sql_query(sql)

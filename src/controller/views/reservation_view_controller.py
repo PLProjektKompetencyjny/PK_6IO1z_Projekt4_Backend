@@ -21,8 +21,8 @@ class ReservationViewController(ViewController, ABC):
             "customer_id": int(request.form['customer_id']),
             "number_of_adults": int(request.form['number_of_adults']),
             "number_of_children": int(request.form['number_of_children']),
-            "start_date": datetime.strptime(request.form['start_date'], '%d-%m-%Y').date(),
-            "end_date": datetime.strptime(request.form['end_date'], '%d-%m-%Y').date(),
+            "start_date": datetime.strptime(request.form['start_date'], '%d-%m-%Y'),
+            "end_date": datetime.strptime(request.form['end_date'], '%d-%m-%Y'),
             "room_id": int(request.form['room_id'])
         }
 

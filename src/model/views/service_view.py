@@ -1,5 +1,3 @@
-from logging import getLogger
-
 from flask import request
 from dataclasses import dataclass
 from datetime import datetime
@@ -10,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from src.utils.utils import db
 from sqlalchemy import func
 
+from src.controller.views.db_handler import DBHandler
 from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.utils.utils import sqlalchemy_error_to_dict
@@ -108,34 +107,22 @@ class ServiceView(db.Model):
             HTTPStatus.OK)
 
     @staticmethod
-    def add_service(reservation_id: int, sid: int, quantity: int) -> tuple[Response, HTTPStatus]:
-        entry = ServiceView(
-            service_reservation_id=reservation_id,
-            service_id=sid,
-            service_quantity=quantity
+    def add_service(reservation_id: int,
+                    sid: int,
+                    quantity: int) -> tuple[Response, HTTPStatus]:
+        sql = (
+            f"""
+            INSERT INTO service_view (
+                service_reservation_id, 
+                service_id, 
+                service_quantity
+            )
+            VALUES (
+                {reservation_id}, 
+                {sid}, 
+                {quantity}
+            )
+            """
         )
 
-        try:
-            db.session.add(entry)
-            db.session.commit()
-
-        except SQLAlchemyError as e:
-            json_data_error = sqlalchemy_error_to_dict(e)
-            getLogger(__name__).error(json_data_error.json)
-            db.session.rollback()
-
-            return (
-                Response.create(
-                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
-                    [],
-                    json_data_error.json),
-                HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        return (
-            Response.create(
-                DatabaseResponseStatus.OK.get_value(),
-                [],
-                DatabaseResponseStatus.OK.get_description(),
-            ),
-            HTTPStatus.OK,
-        )
+        return DBHandler.run_sql_query(sql)
