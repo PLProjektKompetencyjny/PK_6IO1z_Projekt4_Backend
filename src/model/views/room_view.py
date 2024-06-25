@@ -28,7 +28,6 @@ class RoomView(db.Model):
     room_photos_dir: str
     room_last_modified_by: int
     room_last_modified_at: datetime
-
     room_id = db.Column("room_id", db.Integer, primary_key=True)
     room_type_id = db.Column("room_type_id", db.Integer)
     room_status_id = db.Column("room_status_id", db.Integer)

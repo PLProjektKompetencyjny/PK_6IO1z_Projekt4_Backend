@@ -6,6 +6,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from src.utils.utils import db, HTTPResponse
 from src.controller.db_handler import DBHandler
+
 from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.utils.utils import sqlalchemy_error_to_dict
@@ -23,7 +24,6 @@ class ServiceView(db.Model):
     service_quantity: float
     service_last_modified_by: str
     service_last_modified_at: str
-
     service_id = db.Column('service_id', db.Integer, primary_key=True)
     service_name = db.Column('service_name', db.String)
     service_price = db.Column('service_price', db.Float)

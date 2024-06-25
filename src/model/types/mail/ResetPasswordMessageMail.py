@@ -10,7 +10,7 @@ class ResetPasswordMessageMail(BasicMail):
 
     def create_message(self):
         html_message = open(self.html_path).read()
-        html_message = html_message.replace('{logo_path}', self.logo_path).replace('{reset_password}', f'http://localhost:4200/resetPassword/{self.dataID}')
+        html_message = html_message.replace('{logo_path}', self.logo_path).replace('{reset_password}', f'http://localhost:80/resetPassword/{self.dataID}')
 
         self.message = MIMEText(html_message, 'html')
         self.message['Subject'] = 'Reset password'

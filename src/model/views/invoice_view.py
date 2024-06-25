@@ -7,6 +7,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from src.controller.db_handler import DBHandler
 from src.model.enums.invoice_status import InvoiceStatus
 from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
+from datetime import datetime
+
 
 
 @dataclass
@@ -114,6 +116,7 @@ class InvoiceView(db.Model):
             .session
             .commit()
         )
+
         return None
 
     @staticmethod
@@ -210,6 +213,3 @@ class InvoiceView(db.Model):
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
             raise e
-
-
-

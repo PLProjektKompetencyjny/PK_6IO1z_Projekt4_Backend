@@ -14,6 +14,11 @@ from src.service.scheduler.scheduler import setup_scheduler_for_payments
 from flask_cors import CORS
 import os
 
+from src.controller.blueprint.mailing import mailing
+from .utils.utils import db, jwt
+
+from flask_cors import CORS
+
 
 def create_app(config_name):
     app = Flask('TravelNest')
