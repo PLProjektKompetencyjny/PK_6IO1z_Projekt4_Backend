@@ -10,6 +10,12 @@ ENV DB_Name="TravelNest"
 ENV DB_Username="tn_api_write"
 ENV DB_Password="cba"
 
+ENV EMAIL_ADDRESS="travelnest2407@gmail.com"
+ENV EMAIL_PASS="ssym dqry bsdz nlzd"
+ENV LOGO_HTTPS_PATH="https://lh3.googleusercontent.com/d/1fBRxFZ_CbRr99CYcK89wAqAmr4PVbdKE"
+ENV INVOICE_DEST_PATH="/usr/INVOICES"
+ENV INVOICE_TEMPLATE_PATH="src/model/templates/INVOICE/Invoice_template.docx"
+
 # install ubuntu pakages
 RUN apt update
 RUN apt install -y python3-dev
