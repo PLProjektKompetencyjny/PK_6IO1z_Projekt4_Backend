@@ -3,6 +3,7 @@ from flask import current_app as app
 
 from smtplib import SMTPResponseException
 from http import HTTPStatus
+import jwtg
 
 from src.model.types.mail.ActivationMessageMail import ActivationMessageMail
 from src.model.types.mail.InvoiceMessageMail import InvoiceMessageMail
@@ -27,6 +28,10 @@ def SelectMessageCreator(message_type, data_id, recipients):
 
 
 def sendmail():
+    if request.method != 'POST':
+        app.logger.warning(f'This endpoint supports only POST operation')
+        return HTTPStatus.BAD_REQUEST.phrase, HTTPStatus.BAD_REQUEST
+
     data_id = request.args.get('data_id', type=int)
     address = request.args.get('address', type=str, default='')
     message_type = request.args.get('message_type', type=str)
