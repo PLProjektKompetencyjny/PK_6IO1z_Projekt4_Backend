@@ -1,14 +1,17 @@
 @port = 5000
 @hostname = http://localhost
 @host = {{hostname}}:{{port}}/api
+
 @email = john.doe@wp.pl
 @password = myjohn
+
 
 # @name signUp
 POST {{host}}/auth/sign-up HTTP/1.1
 Content-Type: application/json
 
 {
+
     "customer_firstname": "John",
     "customer_surname": "Doe",
     "customer_email": "{{email}}",
@@ -19,11 +22,14 @@ Content-Type: application/json
     "customer_building_number": "1",
     "customer_street": "street",
     "customer_phone": "+48123456789"
+
 }
 
 ###
 @token = {{signUp.response.body.access_token}}
+
 @auth_schema = {{signUp.response.body.auth_schema}}
+
 
 # @name signIn
 POST {{host}}/auth/sign-in HTTP/1.1
@@ -36,11 +42,15 @@ Content-Type: application/json
 
 ###
 @token = {{signIn.response.body.access_token}}
+
 @auth_schema = {{signIn.response.body.auth_schema}}
+
 
 # Przykład wykorzystania `@jwt_required()` - zabezpieczenie endpoint'u
 # @name secured
 POST {{host}}/auth/secured HTTP/1.1
+
 Authorization: {{auth_schema}} {{token}}
 Content-Type: application/json
+
 

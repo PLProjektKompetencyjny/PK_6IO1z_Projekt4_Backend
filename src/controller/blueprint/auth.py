@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 from http import HTTPStatus
@@ -15,6 +16,7 @@ from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.utils.utils import sqlalchemy_error_to_dict
 from src.env import JWT_SECRET_KEY
+
 
 auth = Blueprint("auth", __name__, url_prefix="/api")
 logger = getLogger(__name__)
@@ -155,3 +157,4 @@ def decode_access_token() -> dict[str, any] or None:
 
 def create_access_token(payload: dict[str, any]) -> str:
     return jwt.encode(payload, JWT_SECRET_KEY)
+
