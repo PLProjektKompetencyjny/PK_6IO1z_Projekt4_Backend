@@ -51,8 +51,17 @@ class ReservationView(db.Model):
             f'reservation_last_modified_at={self.reservation_last_modified_at})>'
         )
 
-
-
+    @staticmethod
+    def get_customer_id_from_reservation_id(reservation_id, logger):
+        try:
+            customer_id = db.session.query(ReservationView.reservation_customer_id
+                                           ).filter(ReservationView.reservation_id == reservation_id
+                                           ).one()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+        return customer_id
     @staticmethod
     def get_details_for_invoice_about_reservation(reservation_id: id, logger):
         try:
