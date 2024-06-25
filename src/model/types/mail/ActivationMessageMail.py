@@ -11,7 +11,7 @@ class ActivationMessageMail(BasicMail):
 
     def create_message(self):
         html_message = open(self.html_path).read()
-        html_message = html_message.replace('{logo_path}', self.logo_path).replace('{url_path}', 'onet.pl')
+        html_message = html_message.replace('{logo_path}', self.logo_path).replace('{url_path}', f'http://localhost:4200/activate/{self.dataID}')
 
         self.message = MIMEText(html_message, 'html')
         self.message['Subject'] = f'Activate your account'
