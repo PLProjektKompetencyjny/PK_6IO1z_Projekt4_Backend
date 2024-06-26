@@ -13,10 +13,18 @@ from src.service.invoice_generator.invoice import generate
 from src.controller.types.response import Response
 from src.utils.utils import sqlalchemy_error_to_dict
 
+#API invoice
+
+#API for invoice is under URL /api/invoice
+
 logger = getLogger(__name__)
 
 invoice = Blueprint('invoice_controller', __name__, url_prefix='/api')
 
+#Endpoint generate_invoice takes two positional arguments which are:
+#reservation_id:int - number of reservation for which invoice has to be generated. It has to be greater than 0.
+#tax:int - value of the tax for the invoice, by default it is 8. It has to be between (0;100>.
+#returns content of the generated file in the body of response. The type of response is application/pdf.
 def generate_invoice():
     if request.method != 'GET':
         app.logger.error('Incorrect request method. This endpoint only accepts GET')
@@ -27,9 +35,9 @@ def generate_invoice():
     reservation_id = request.args.get('reservation_id', type=int)
     tax_value = request.args.get('tax', type=int, default=8)
 
-    if tax_value < 0:
-        logger.error(f'Value of tax must be greater or equal 0. Value passed {tax_value}')
-        return Response.create(HTTPStatus.BAD_REQUEST,HTTPStatus.BAD_REQUEST.phrase,f'Value of tax must be greater or equal 0. Value passed {tax_value}')
+    if tax_value < 0 or tax_value > 100:
+        logger.error(f'Value of tax must fit in range (0;100>. Value passed {tax_value}')
+        return Response.create(HTTPStatus.BAD_REQUEST,HTTPStatus.BAD_REQUEST.phrase,f'Value of tax must fit in range (0;100>. Value passed {tax_value}')
 
     if reservation_id is None or reservation_id <=0:
         logger.error(f'Value of reservation id must be greater than 0. Value passed {reservation_id}')
