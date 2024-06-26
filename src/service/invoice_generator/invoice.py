@@ -34,6 +34,6 @@ def generate(generatorObject: InvoiceGenerator):
     pdf_dest_path = convertDocxToPdf(docx_file, pdf_dest_path)
     try:
         remove(docx_file)
-    except FileNotFoundError:
-        pass
+    except FileNotFoundError as e:
+        raise e
     return pdf_dest_path

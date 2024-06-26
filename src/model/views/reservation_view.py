@@ -56,7 +56,7 @@ class ReservationView(db.Model):
         try:
             customer_id = db.session.query(ReservationView.reservation_customer_id
                                            ).filter(ReservationView.reservation_id == reservation_id
-                                           ).one()
+                                           ).first()
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
