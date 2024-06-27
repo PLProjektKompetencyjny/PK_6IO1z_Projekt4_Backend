@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 
+from src.model.views.invoice_view import InvoiceView
 from src.utils.utils import db
 from src.model.views.room_view import RoomView
 from src.utils.utils import sqlalchemy_error_to_dict
@@ -54,37 +56,39 @@ class ReservationView(db.Model):
     @staticmethod
     def get_customer_id_from_reservation_id(reservation_id, logger):
         try:
-            customer_id = db.session.query(ReservationView.reservation_customer_id
-                                           ).filter(ReservationView.reservation_id == reservation_id
-                                           ).first()
+            customer_id = db.session.query(
+                ReservationView.reservation_customer_id
+            ).filter(
+                ReservationView.reservation_id == reservation_id
+            ).first()
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
             raise e
+
+        if customer_id is None:
+            raise sqlalchemy.orm.exc.NoResultFound
+
         return customer_id
     @staticmethod
     def get_details_for_invoice_about_reservation(reservation_id: id, logger):
         try:
             rows = db.session.query(
-                ReservationView.reservation_id.label('reservation_id'),
                 ReservationView.reservation_room_id.label('room_id'),
                 ReservationView.reservation_number_of_adults.label('number_of_adults'),
                 ReservationView.reservation_number_of_children.label('number_of_children'),
                 (ReservationView.reservation_end_date - ReservationView.reservation_start_date).label('duration'),
-                (
-                        RoomView.room_gross_price +
-                        (RoomView.room_gross_price_adult * ReservationView.reservation_number_of_adults) +
-                        (RoomView.room_gross_price_child * ReservationView.reservation_number_of_children)
-                ).label('gross_price_room')
-            ).join(
-                RoomView,
-                onclause=RoomView.room_id == ReservationView.reservation_room_id
             ).filter(
                 ReservationView.reservation_id == reservation_id
+            ).order_by(ReservationView.reservation_room_id
             ).all()
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
             raise e
+
+
+        if rows is None:
+            raise sqlalchemy.orm.exc.NoResultFound
 
         return rows

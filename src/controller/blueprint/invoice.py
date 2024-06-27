@@ -1,5 +1,7 @@
 from logging import getLogger
-from flask import request, Blueprint, send_file, make_response
+
+import sqlalchemy
+from flask import request, Blueprint, send_file, make_response, jsonify
 from flask import current_app as app
 
 from http import HTTPStatus
@@ -45,24 +47,30 @@ def generate_invoice():
 
 
     data = decode_access_token()
-    client_id_reservation = ReservationView.get_customer_id_from_reservation_id(reservation_id, logger)
-    if client_id_reservation == None:
+    try:
+        client_id_reservation = ReservationView.get_customer_id_from_reservation_id(reservation_id, logger)
+    except sqlalchemy.orm.exc.NoResultFound:
         logger.error(f'No such reservation id: {reservation_id}')
-        return Response.create(HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR.phrase)
+        return Response.create(HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR.phrase, f'No such reservation id: {reservation_id}')
 
-    if(client_id_reservation[0] != data['user_id'] and data['user_is_admin'] != True):
+
+    if client_id_reservation != data['user_id'] and data['user_is_admin'] != True:
         logger.error(f'Insufficient privileges for this operation')
-        return Response.create(HTTPStatus.FORBIDDEN,HTTPStatus.FORBIDDEN.phrase)
+        return Response.create(HTTPStatus.FORBIDDEN,HTTPStatus.FORBIDDEN.phrase, f'Insufficient privileges for this operation')
     try:
         invoice_generator_object = InvoiceGenerator(reservation_id, tax_value)
         invoice_file_path = generate(invoice_generator_object)
     except SQLAlchemyError as e:
         error_details = sqlalchemy_error_to_dict(e)
         app.logger.error(f'Problem with data  base occured: {error_details}')
-        return Response.create(HTTPStatus.BAD_REQUEST, error_details)
+        return Response.create(HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR.phrase, error_details)
     except FileNotFoundError:
         logger.error(f'Problem with file occured')
-        return Response.create(HTTPStatus.INTERNAL_SERVER_ERROR, 'File not found for the method')
+        return Response.create(HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR, 'File not found for the method')
+    except sqlalchemy.orm.exc.NoResultFound:
+        logger.error(f'There is no records of data with given reservation id: {reservation_id}')
+        return Response.create(HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR.phrase, f'There is no records of data with given reservation id: {reservation_id}')
+
 
 
     response = make_response(send_file(invoice_file_path, as_attachment=True, mimetype='application/pdf'))

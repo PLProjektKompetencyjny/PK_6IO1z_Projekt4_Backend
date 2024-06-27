@@ -1,5 +1,6 @@
 from logging import getLogger
 
+import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 
 from src.model.views.invoice_view import InvoiceView
@@ -22,18 +23,20 @@ class InvoiceGenerator:
             self.__customer_details =CustomerView.get_customer_details_by_id(reservation_id, logger)
             self.__service_details = ServiceView.get_services_by_reservation_id(reservation_id, logger)
             self.__reservation_details = ReservationView.get_details_for_invoice_about_reservation(reservation_id, logger)
+            self.__invoice_room_details = InvoiceView.get_rooms_prices_for_reservation(reservation_id, logger)
         except SQLAlchemyError as e:
+            raise e
+        except sqlalchemy.orm.exc.NoResultFound as e:
             raise e
 
         self.__invoice_date = self.__invoice_view_details.invoice_date.strftime('%m-%d-%Y')
 
-
-        for room in self.__reservation_details:
-            self.__details.append([room.room_id,
-                                         f'Adults: {room.number_of_adults}, children: {room.number_of_children}',
-                                   room.duration.days,
-                                   room.gross_price_room,
-                                   room.duration.days * room.gross_price_room]
+        for pos in range(len(self.__reservation_details)):
+            self.__details.append([self.__reservation_details[pos].room_id,
+                                         f'Adults: {self.__reservation_details[pos].number_of_adults}, children: {self.__reservation_details[pos].number_of_children}',
+                                   self.__reservation_details[pos].duration.days,
+                                   self.__invoice_room_details[pos].invoice_room_price_gross,
+                                   self.__invoice_room_details[pos].invoice_room_price_gross * self.__reservation_details[pos].duration.days]
                                   )
 
         for service in self.__service_details:
@@ -41,7 +44,7 @@ class InvoiceGenerator:
                                    f'Service: {service.service_name}',
                                    int(service.service_quantity),
                                    service.service_price,
-                                   service.service_price * service.service_quantity]
+                                   service.service_price_total]
                                   )
 
         self.template_path = INVOICE_TEMPLATE_PATH

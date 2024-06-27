@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 
 from src.utils.utils import db
@@ -64,5 +65,8 @@ class CustomerView(db.Model):
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
             raise e
+
+        if rows is None:
+            raise sqlalchemy.orm.exc.NoResultFound
 
         return rows

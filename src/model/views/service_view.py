@@ -1,3 +1,4 @@
+import sqlalchemy
 from celery.beat import Service
 from flask import request
 from dataclasses import dataclass
@@ -21,6 +22,7 @@ class ServiceView(db.Model):
     service_id: int
     service_name: str
     service_price: float
+    service_price_total: float
     service_reservation_id: int
     service_quantity: int
     service_last_modified_by: int
@@ -29,6 +31,7 @@ class ServiceView(db.Model):
     service_id = db.Column('service_id', db.Integer, primary_key=True)
     service_name = db.Column('service_name', db.String)
     service_price = db.Column('service_price', db.Float)
+    service_price_total = db.Column('service_price_total', db.Float)
     service_reservation_id = db.Column('service_reservation_id', db.Integer, primary_key=True)
     service_quantity = db.Column('service_quantity', db.Float)
     service_last_modified_by = db.Column('service_last_modified_by', db.String)
@@ -39,6 +42,7 @@ class ServiceView(db.Model):
             f'<ServiceView(service_id={self.service_id}, '
             f'service_name={self.service_name}, '
             f'service_price={self.service_price}, '
+            f'service_price_total={self.service_price_total},'
             f'service_reservation_id={self.service_reservation_id}, '
             f'service_quantity={self.service_quantity}, '
             f'service_last_modified_by={self.service_last_modified_by}, '
@@ -99,13 +103,17 @@ class ServiceView(db.Model):
         try:
             rows = db.session.query(ServiceView.service_name.label('service_name'),
                                     ServiceView.service_price.label('service_price'),
-                                    ServiceView.service_quantity.label('service_quantity')
+                                    ServiceView.service_quantity.label('service_quantity'),
+                                    ServiceView.service_price_total.label('service_price_total')
                     ).filter(ServiceView.service_reservation_id == reservation_id
                     ).all()
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
             raise e
+
+        if rows is None:
+            raise sqlalchemy.orm.exc.NoResultFound
 
         return rows
 
