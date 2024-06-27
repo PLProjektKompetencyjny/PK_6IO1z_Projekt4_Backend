@@ -1,7 +1,7 @@
 from logging import getLogger
 
 import sqlalchemy
-from flask import request, Blueprint, send_file, make_response, jsonify
+from flask import request, Blueprint, send_file, make_response
 from flask import current_app as app
 
 from http import HTTPStatus
