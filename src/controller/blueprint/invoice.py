@@ -3,6 +3,7 @@ from logging import getLogger
 import sqlalchemy
 from flask import request, Blueprint, send_file, make_response
 from flask import current_app as app
+from flask_jwt_extended import jwt_required
 
 from http import HTTPStatus
 
@@ -47,6 +48,9 @@ def generate_invoice():
 
 
     data = decode_access_token()
+    if data is None:
+        logger.error(f'No token passed to endpoint. It is required to access this endpoint.')
+        return Response.create(HTTPStatus.FORBIDDEN, HTTPStatus.FORBIDDEN.phrase,f'No token passed to endpoint. It is required to access this endpoint.')
     try:
         client_id_reservation = ReservationView.get_customer_id_from_reservation_id(reservation_id, logger)
     except sqlalchemy.orm.exc.NoResultFound:
@@ -77,6 +81,7 @@ def generate_invoice():
     response.status_code = HTTPStatus.OK
     logger.info(f'Invoice for reservation {reservation_id} generated successfully')
     return response
+
 
 invoice.add_url_rule('/invoice/generate', view_func=generate_invoice, methods=['GET'])
 
