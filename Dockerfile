@@ -9,8 +9,8 @@ ENV DB_Port="5432"
 ENV DB_Name="TravelNest"
 ENV DB_Username="tn_api_write"
 ENV DB_Password="cba"
-ENV INVOICE_DEST_PATH = "/usr/INVOICES"
-ENV INVOICE_TEMPLATE_PATH = "src/model/templates/INVOICE/Invoice_template.docx"
+ENV INVOICE_DEST_PATH="/usr/INVOICES"
+ENV INVOICE_TEMPLATE_PATH="/App/src/model/templates/INVOICE/invoice_template.docx"
 
 # install ubuntu pakages
 RUN apt update
