@@ -70,3 +70,4 @@ def your_endpoint():
   return jsonify(is_admin)
 ```
 Dzięki temu jesteśmy w stanie zweryfikować czy użytkownik ma uprawnienia m.in. do modyfikacji ustawień pokoi, dostępnych serwisów czy zarządzaniem klientami.
+

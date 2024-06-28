@@ -62,3 +62,4 @@ class RoomView(db.Model):
         except:
             (db.session.rollback())
             return None
+

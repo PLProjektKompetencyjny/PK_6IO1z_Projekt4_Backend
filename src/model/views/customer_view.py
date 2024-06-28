@@ -1,8 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.utils.utils import db
+import sqlalchemy
+from sqlalchemy.exc import SQLAlchemyError
 
+from src.utils.utils import db
+from src.utils.utils import sqlalchemy_error_to_dict
 
 @dataclass
 class CustomerView(db.Model):
@@ -49,3 +52,21 @@ class CustomerView(db.Model):
             f'customer_last_modified_by={self.customer_last_modified_by}, '
             f'customer_last_modified_at={self.customer_last_modified_at})>'
         )
+
+    @staticmethod
+    def get_customer_details_by_id(customer_id: int, logger):
+        try:
+            rows = (db.session.query(
+                CustomerView
+            ).filter(
+                CustomerView.customer_id == customer_id
+            ).first())
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if rows is None:
+            raise sqlalchemy.orm.exc.NoResultFound
+
+        return rows

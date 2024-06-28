@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.utils.utils import db
+import sqlalchemy
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 
+from src.utils.utils import sqlalchemy_error_to_dict
+from src.utils.utils import db
 
 @dataclass
 class InvoiceView(db.Model):
@@ -65,3 +68,43 @@ class InvoiceView(db.Model):
             .commit()
         )
         return None
+
+    @staticmethod
+    def get_invoice_details_for_single_reservation(reservation_id: int, logger):
+        try:
+            rows = db.session.query(
+                InvoiceView.invoice_date.label('invoice_date'),
+                InvoiceView.invoice_id.label('invoice_id'),
+                InvoiceView.invoice_price_gross.label('invoice_price_gross')
+            ).filter(
+                InvoiceView.invoice_reservation_id == reservation_id
+            ).first()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if rows is None:
+            raise sqlalchemy.orm.exc.NoResultFound
+
+        return rows
+
+    @staticmethod
+    def get_rooms_prices_for_reservation(reservation_id: int, logger):
+        try:
+            rows = db.session.query(
+                InvoiceView.invoice_room_price_gross.label('invoice_room_price_gross')
+            ).filter(
+                InvoiceView.invoice_reservation_id == reservation_id
+            ).order_by(
+                InvoiceView.invoice_room_id
+            ).all()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if rows is None:
+            raise sqlalchemy.orm.exc.NoResultFound
+
+        return rows
