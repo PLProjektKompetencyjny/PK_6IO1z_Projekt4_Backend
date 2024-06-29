@@ -38,6 +38,42 @@ class DBHandler:
         )
 
     @staticmethod
+    def run_sql_query_scalar(query: str, id_column_name: str) -> HTTPResponse:
+        logger = getLogger(__name__)
+        new_id = None
+
+        try:
+            new_id = db.session.execute(text(query)).fetchone()[0]
+            db.session.commit()
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error.json)
+            db.session.rollback()
+
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json),
+                HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        logger.info(f'NEW RECORD ID: {new_id}')
+
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                [
+                  {
+                    id_column_name: new_id
+                  }
+                ],
+                DatabaseResponseStatus.OK.get_description(),
+            ),
+            HTTPStatus.OK,
+        )
+
+    @staticmethod
     def run_sql_query_raw(query: str) -> int:
         try:
             db.session.execute(text(query))

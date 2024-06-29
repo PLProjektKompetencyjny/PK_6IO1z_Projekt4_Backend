@@ -74,8 +74,10 @@ class ReservationView(db.Model):
                 '{start_date.strftime('%Y-%m-%d 15:00:00')}', 
                 '{end_date.strftime('%Y-%m-%d 12:00:00')}', 
                 {room_id}
-            )
+            );
+
+            SELECT MAX(reservation_id) FROM reservation_view;
             """
         )
 
-        return DBHandler.run_sql_query(sql)
+        return DBHandler.run_sql_query_scalar(sql, 'reservation_id')

@@ -1,8 +1,15 @@
+from flask import request
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.utils.utils import db
+from http import HTTPStatus
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
+
+from src.utils.utils import db, HTTPResponse
+from src.controller.types.response import Response
+from src.controller.enums.database_response_status import DatabaseResponseStatus
+from src.controller.views.view_controller import ViewController
 
 
 @dataclass
@@ -62,3 +69,65 @@ class RoomView(db.Model):
         except:
             (db.session.rollback())
             return None
+            
+    @staticmethod
+    def get_available_rooms(logger) -> HTTPResponse:
+        filters = request.args.to_dict()
+        start_date = None
+        end_date = None
+
+        if 'room_reservation_start_date' in filters:
+            start_date = filters['room_reservation_start_date']
+            del filters['room_reservation_start_date']
+
+        if 'room_reservation_end_date' in filters:
+            end_date = filters['room_reservation_end_date']
+            del filters['room_reservation_end_date']
+
+        try:
+            query = ViewController.apply_model_filters(RoomView, filters)
+            rooms = query.all()
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json,
+                ),
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
+
+        row_count = rooms.__len__()
+
+        if not row_count:
+            logger.error(
+                f"No rows found in [{RoomView.__tablename__}] with filters [{filters}]"
+            )
+            return (
+                Response.create(
+                    DatabaseResponseStatus.NOT_FOUND.get_value(),
+                    [],
+                    DatabaseResponseStatus.NOT_FOUND.get_description(),
+                ),
+                HTTPStatus.OK,
+            )
+
+        available_rooms = []
+        for room in rooms:
+            if (start_date is None or end_date is None or RoomView.check_room_availability(room.room_id, start_date, end_date) is not None):
+                available_rooms.append(room)
+
+        logger.info(
+            f"Found [{available_rooms.__len__()}] rows in [{RoomView.__tablename__}] with filters [{filters}]"
+        )
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                available_rooms,
+                DatabaseResponseStatus.OK.get_description(),
+            ),
+            HTTPStatus.OK,
+        )

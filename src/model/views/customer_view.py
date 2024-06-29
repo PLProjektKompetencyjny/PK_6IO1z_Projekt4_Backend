@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
 
+from sqlalchemy import func
 from src.controller.types.response import Response
 from src.controller.db_handler import DBHandler
 from src.utils.utils import db, HTTPResponse
@@ -54,7 +55,58 @@ class CustomerView(db.Model):
         )
 
     @staticmethod
+    def add_customer(
+        customer_email: str,
+        customer_nip_number: None,
+        customer_name: str,
+        customer_surname: str,
+        customer_phone: str,
+        customer_city: str,
+        customer_postal_code: str,
+        customer_street: str,
+        customer_building_number: str,
+        customer_last_modified_by: None, ) -> HTTPResponse:
+        new_user_id = db.session.query(
+            func.insert_user_account(customer_email, '', None)
+        ).scalar()
+
+        sql = (
+            f"""    
+            INSERT INTO customer_view(
+                customer_id,
+                customer_email,
+                customer_nip_number,
+                customer_name,
+                customer_surname,
+                customer_phone,
+                customer_city,
+                customer_postal_code,
+                customer_street,
+                customer_building_number,
+                customer_last_modified_by)
+            VALUES(
+                {new_user_id},
+                '{customer_email}',
+                {'NULL' if customer_nip_number is None else f"'{customer_nip_number}'"},
+                '{customer_name}',
+                '{customer_surname}',
+                '{customer_phone}',
+                '{customer_city}',
+                '{customer_postal_code}',
+                '{customer_street}',
+                '{customer_building_number}',
+                {'NULL' if customer_last_modified_by is None else f"'{customer_last_modified_by}'"}
+            );
+
+            SELECT MAX(customer_id) FROM customer_view;
+            """
+        )
+
+        return DBHandler.run_sql_query_scalar(sql, 'customer_id')
+
+    @staticmethod
     def update_customer(customer_id: int,
+                        customer_email: str,
                         customer_nip_number: None,
                         customer_name: str,
                         customer_surname: str,
@@ -68,6 +120,7 @@ class CustomerView(db.Model):
             f"""    
             UPDATE customer_view
             SET
+                customer_email = '{customer_email}',
                 customer_nip_number = {'NULL' if customer_nip_number is None else f"'{customer_nip_number}'"},
                 customer_name = '{customer_name}',
                 customer_surname = '{customer_surname}',
