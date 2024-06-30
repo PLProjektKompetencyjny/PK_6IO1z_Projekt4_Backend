@@ -4,6 +4,7 @@ from logging import getLogger
 
 from src.model.views.service_view import ServiceView
 from src.controller.views.view_controller import ViewController
+from src.utils.utils import get_params
 
 
 class ServiceViewController(ViewController, ABC):
@@ -21,11 +22,14 @@ class ServiceViewController(ViewController, ABC):
         return self.get_rows(ServiceView, getLogger(__name__))
 
     def post(self):
-        params = {
-            "reservation_id": int(request.form['service_reservation_id']),
-            "sid": int(request.form['service_id']),
-            "quantity": int(request.form['service_quantity']),
-        }
+        excluded_columns = [
+            'service_name',
+            'service_price',
+            'service_last_modified_at',
+            'service_last_modified_by'
+        ]
+
+        params = get_params(request.form, ServiceView, excluded_columns)
 
         self.logger.info(f"New POST request with params: {params}")
 

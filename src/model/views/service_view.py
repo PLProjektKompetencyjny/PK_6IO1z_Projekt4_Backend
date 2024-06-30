@@ -95,9 +95,9 @@ class ServiceView(db.Model):
         )
 
     @staticmethod
-    def add_service(reservation_id: int,
-                    sid: int,
-                    quantity: int) -> HTTPResponse:
+    def add_service(service_reservation_id: int,
+                    service_id: int,
+                    service_quantity: int) -> HTTPResponse:
         sql = (
             f"""
             INSERT INTO service_view (
@@ -106,9 +106,9 @@ class ServiceView(db.Model):
                 service_quantity
             )
             VALUES (
-                {reservation_id}, 
-                {sid}, 
-                {quantity}
+                {service_reservation_id}, 
+                {service_id}, 
+                {service_quantity}
             )
             """
         )

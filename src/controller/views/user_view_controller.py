@@ -30,7 +30,20 @@ class UserViewController(ViewController, ABC):
         )
 
     def put(self):
-        pass
+        params = {
+            'login': str(request.form['login']),
+            'new_user_password': str(request.form['new_user_password']),
+            'old_user_password': str(request.form['old_user_password']),
+        }
+
+        if request.form['customer_last_modified_by'] != '':
+            params['last_modified_by_id'] = int(request.form['customer_last_modified_by'])
+
+        self.logger.info(f"New PUT request with params: {params}")
+
+        return UserView.update_user_password(
+            **params
+        )
 
     def delete(self):
         pass
