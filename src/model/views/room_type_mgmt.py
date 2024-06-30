@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
+from http import HTTPStatus
 
+from src.controller.types.response import Response
+from src.controller.db_handler import DBHandler
 from src.utils.utils import db
 
 
@@ -18,7 +21,7 @@ class RoomTypeMgmt(db.Model):
     last_modified_by: int
     last_modified_at: datetime
 
-    id = db.Column('id', db.Integer, primary_key=True)
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     num_of_single_beds = db.Column('num_of_single_beds', db.Integer)
     num_of_double_beds = db.Column('num_of_double_beds', db.Integer)
     num_of_child_beds = db.Column('num_of_child_beds', db.Integer)
@@ -40,3 +43,59 @@ class RoomTypeMgmt(db.Model):
             f'last_modified_by={self.last_modified_by}, '
             f'last_modified_at={self.last_modified_at}>'
         )
+
+    @staticmethod
+    def add_room_type(num_of_single_beds: int,
+                      num_of_double_beds: int,
+                      num_of_child_beds: int,
+                      adult_price_gross: float,
+                      child_price_gross: float,
+                      photos_dir: str) -> tuple[Response, HTTPStatus]:
+        sql = (
+            f"""    
+            INSERT INTO room_type_mgmt (
+                num_of_single_beds, 
+                num_of_double_beds, 
+                num_of_child_beds, 
+                adult_price_gross, 
+                child_price_gross, photos_dir
+            )
+            VALUES (
+                {num_of_single_beds},
+                {num_of_double_beds},
+                {num_of_child_beds},
+                {adult_price_gross},
+                {child_price_gross},
+                '{photos_dir}'
+            );
+            
+            SELECT MAX(id) FROM room_type_mgmt; 
+            """
+        )
+
+        return DBHandler.run_sql_query_scalar(sql, 'room_type_id')
+
+    @staticmethod
+    def update_room_type(id: int,
+                         num_of_single_beds: int,
+                         num_of_double_beds: int,
+                         num_of_child_beds: int,
+                         adult_price_gross: float,
+                         child_price_gross: float,
+                         photos_dir: str) -> tuple[Response, HTTPStatus]:
+        sql = (
+            f"""    
+            UPDATE room_type_mgmt 
+            SET 
+                num_of_single_beds = {num_of_single_beds},
+                num_of_double_beds = {num_of_double_beds},
+                num_of_child_beds = {num_of_child_beds},
+                adult_price_gross = {adult_price_gross},
+                child_price_gross = {child_price_gross},
+                photos_dir = '{photos_dir}'
+            WHERE 
+                id = {id}
+            """
+        )
+
+        return DBHandler.run_sql_query(sql)

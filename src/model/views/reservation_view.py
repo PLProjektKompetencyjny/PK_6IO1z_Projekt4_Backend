@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-import sqlalchemy
+from src.controller.db_handler import DBHandler
+from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
+
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 
 from src.model.views.invoice_view import InvoiceView
-from src.utils.utils import db
 from src.model.views.room_view import RoomView
-from src.utils.utils import sqlalchemy_error_to_dict
 
 
 @dataclass
@@ -54,6 +55,40 @@ class ReservationView(db.Model):
         )
 
     @staticmethod
+    def add_reservation(reservation_customer_id: int,
+                        reservation_number_of_adults: int,
+                        reservation_number_of_children: int,
+                        reservation_room_id: int,
+                        reservation_start_date: str,
+                        reservation_end_date: str) -> HTTPResponse:
+        reservation_start_date = datetime.strptime(reservation_start_date, '%d-%m-%Y')
+        reservation_end_date = datetime.strptime(reservation_end_date, '%d-%m-%Y')
+
+        sql = (
+            f"""    
+            INSERT INTO reservation_view (
+                reservation_customer_id, 
+                room_number_of_adults, 
+                room_number_of_children, 
+                reservation_start_date, 
+                reservation_end_date, 
+                reservation_room_id
+            )
+            VALUES (
+                {reservation_customer_id}, 
+                {reservation_number_of_adults}, 
+                {reservation_number_of_children}, 
+                '{reservation_start_date.strftime('%Y-%m-%d 15:00:00')}', 
+                '{reservation_end_date.strftime('%Y-%m-%d 12:00:00')}', 
+                {reservation_room_id}
+            );
+
+            SELECT MAX(reservation_id) FROM reservation_view;
+            """
+        )
+
+        return DBHandler.run_sql_query_scalar(sql, 'reservation_id')
+
     def get_customer_id_from_reservation_id(reservation_id, logger):
         try:
             customer_id = db.session.query(
@@ -67,9 +102,10 @@ class ReservationView(db.Model):
             raise e
 
         if customer_id is None:
-            raise sqlalchemy.orm.exc.NoResultFound
+            raise NoResultFound
 
         return customer_id
+      
     @staticmethod
     def get_details_for_invoice_about_reservation(reservation_id: id, logger):
         try:
@@ -89,6 +125,6 @@ class ReservationView(db.Model):
 
 
         if rows is None:
-            raise sqlalchemy.orm.exc.NoResultFound
+            raise NoResultFound
 
         return rows

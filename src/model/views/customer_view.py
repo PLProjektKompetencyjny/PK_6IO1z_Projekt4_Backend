@@ -1,11 +1,16 @@
 from dataclasses import dataclass
 from datetime import datetime
+from http import HTTPStatus
 
-import sqlalchemy
+from sqlalchemy import func
+from sqlalchemy.orm.exc import NoResultFound
+
+from src.controller.types.response import Response
+from src.controller.db_handler import DBHandler
+from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
+
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.utils.utils import db
-from src.utils.utils import sqlalchemy_error_to_dict
 
 @dataclass
 class CustomerView(db.Model):
@@ -54,6 +59,88 @@ class CustomerView(db.Model):
         )
 
     @staticmethod
+    def add_customer(
+        customer_email: str,
+        customer_nip_number: None,
+        customer_name: str,
+        customer_surname: str,
+        customer_phone: str,
+        customer_city: str,
+        customer_postal_code: str,
+        customer_street: str,
+        customer_building_number: str,
+        customer_last_modified_by: None, ) -> HTTPResponse:
+        new_user_id = db.session.query(
+            func.insert_user_account(customer_email, '', None)
+        ).scalar()
+
+        sql = (
+            f"""    
+            INSERT INTO customer_view(
+                customer_id,
+                customer_email,
+                customer_nip_number,
+                customer_name,
+                customer_surname,
+                customer_phone,
+                customer_city,
+                customer_postal_code,
+                customer_street,
+                customer_building_number,
+                customer_last_modified_by)
+            VALUES(
+                {new_user_id},
+                '{customer_email}',
+                {'NULL' if customer_nip_number is None else f"'{customer_nip_number}'"},
+                '{customer_name}',
+                '{customer_surname}',
+                '{customer_phone}',
+                '{customer_city}',
+                '{customer_postal_code}',
+                '{customer_street}',
+                '{customer_building_number}',
+                {'NULL' if customer_last_modified_by is None else f"'{customer_last_modified_by}'"}
+            );
+
+            SELECT MAX(customer_id) FROM customer_view;
+            """
+        )
+
+        return DBHandler.run_sql_query_scalar(sql, 'customer_id')
+
+    @staticmethod
+    def update_customer(customer_id: int,
+                        customer_email: str,
+                        customer_nip_number: None,
+                        customer_name: str,
+                        customer_surname: str,
+                        customer_phone: str,
+                        customer_city: str,
+                        customer_postal_code: str,
+                        customer_street: str,
+                        customer_building_number: str,
+                        customer_last_modified_by: None, ) -> HTTPResponse:
+        sql = (
+            f"""    
+            UPDATE customer_view
+            SET
+                customer_email = '{customer_email}',
+                customer_nip_number = {'NULL' if customer_nip_number is None else f"'{customer_nip_number}'"},
+                customer_name = '{customer_name}',
+                customer_surname = '{customer_surname}',
+                customer_phone = '{customer_phone}',
+                customer_city = '{customer_city}',
+                customer_postal_code = '{customer_postal_code}',
+                customer_street = '{customer_street}',
+                customer_building_number = '{customer_building_number}',
+                customer_last_modified_by = {'NULL' if customer_last_modified_by is None else f"'{customer_last_modified_by}'"}
+            WHERE 
+                customer_id = {customer_id}
+            """
+        )
+
+        return DBHandler.run_sql_query(sql)
+
     def get_customer_details_by_id(customer_id: int, logger):
         try:
             rows = (db.session.query(
@@ -67,6 +154,6 @@ class CustomerView(db.Model):
             raise e
 
         if rows is None:
-            raise sqlalchemy.orm.exc.NoResultFound
+            raise NoResultFound
 
         return rows

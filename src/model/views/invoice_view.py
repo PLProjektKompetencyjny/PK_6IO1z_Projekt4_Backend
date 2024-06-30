@@ -1,41 +1,34 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-import sqlalchemy
+from http import HTTPStatus
+
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 
-from src.utils.utils import sqlalchemy_error_to_dict
-from src.utils.utils import db
+from src.controller.db_handler import DBHandler
+from src.model.enums.invoice_status import InvoiceStatus
+from src.controller.types.response import Response
+from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 
 @dataclass
 class InvoiceView(db.Model):
     __tablename__ = 'invoice_view'
-
-    invoice_id: int
-    invoice_reservation_id: int
-    invoice_room_id: int
-    invoice_room_price_gross: float
-    invoice_date: datetime
-    invoice_price_gross: float
-    invoice_is_paid: bool
-    invoice_status_id: int
-    invoice_last_modified_by: int
-    invoice_last_modified_at: datetime
-
+    
+    invoice_id = db.Column('invoice_id', db.Integer, primary_key=True, autoincrement=True)
+    invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer, primary_key=True)
+    invoice_room_id = db.Column('invoice_room_id', db.Integer, primary_key=True, autoincrement=True)
     invoice_id = db.Column('invoice_id', db.Integer, primary_key=True)
     invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer)
-    invoice_room_id = db.Column(
-        'invoice_room_id', db.Integer, primary_key=True)
+    invoice_room_id = db.Column('invoice_room_id', db.Integer, primary_key=True)
     invoice_room_price_gross = db.Column('invoice_room_price_gross', db.Float)
     invoice_date = db.Column('invoice_date', db.DateTime)
     invoice_price_gross = db.Column('invoice_price_gross', db.Float)
     invoice_is_paid = db.Column('invoice_is_paid', db.Boolean)
     invoice_status_id = db.Column('invoice_status_id', db.Integer)
-    invoice_last_modified_by = db.Column(
-        'invoice_last_modified_by', db.Integer)
-    invoice_last_modified_at = db.Column(
-        'invoice_last_modified_at', db.DateTime)
+    invoice_last_modified_by = db.Column('invoice_last_modified_by', db.Integer)
+    invoice_last_modified_at = db.Column('invoice_last_modified_at', db.DateTime)
 
     def __repr__(self):
         return (
@@ -50,6 +43,53 @@ class InvoiceView(db.Model):
             f'invoice_last_modified_by={self.invoice_last_modified_by}, '
             f'invoice_last_modified_at={self.invoice_last_modified_at})>'
         )
+
+    @staticmethod
+    def calculate_invoice_price(reservation_id: int) -> None:
+        DBHandler.run_sql_function_all(
+            func.calculate_invoice_price, reservation_id
+        )
+
+    @staticmethod
+    def add_invoice(invoice_reservation_id: int) -> HTTPResponse:
+        sql = (
+            f"""    
+            INSERT INTO 
+                invoice_view (invoice_reservation_id)
+            VALUES 
+                ({invoice_reservation_id});
+                
+            SELECT MAX(invoice_id) FROM invoice_view;
+            """
+        )
+
+        return DBHandler.run_sql_query_scalar(sql, 'invoice_id')
+
+    @staticmethod
+    def update_invoice(invoice_id: int, invoice_status_id: int) -> HTTPResponse:
+        if invoice_status_id == InvoiceStatus.PAID.value:
+            sql = (
+                f"""
+                UPDATE invoice_view
+                SET 
+                    invoice_status_id = {invoice_status_id},
+                    invoice_is_paid = TRUE
+                WHERE 
+                    invoice_id = {invoice_id}
+            """
+            )
+        else:
+            sql = (
+                f"""
+                UPDATE invoice_view
+                SET 
+                    invoice_status_id = {invoice_status_id}
+                WHERE 
+                    invoice_id = {invoice_id}
+            """
+            )
+
+        return DBHandler.run_sql_query(sql)
     
     @staticmethod
     def calculate_invoice_price(reservation_id: int) -> None:
@@ -85,7 +125,7 @@ class InvoiceView(db.Model):
             raise e
 
         if rows is None:
-            raise sqlalchemy.orm.exc.NoResultFound
+            raise NoResultFound
 
         return rows
 
@@ -105,6 +145,7 @@ class InvoiceView(db.Model):
             raise e
 
         if rows is None:
-            raise sqlalchemy.orm.exc.NoResultFound
+            raise NoResultFound
 
         return rows
+      

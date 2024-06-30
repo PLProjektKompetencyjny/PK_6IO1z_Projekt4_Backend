@@ -1,14 +1,16 @@
-import sqlalchemy
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import func
 from celery.beat import Service
 from flask import request
+
 from dataclasses import dataclass
 from datetime import datetime
 
 from http import HTTPStatus
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.utils.utils import db
-from sqlalchemy import func
+from src.utils.utils import db, HTTPResponse
+from src.controller.db_handler import DBHandler
 
 from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
@@ -18,15 +20,6 @@ from src.utils.utils import sqlalchemy_error_to_dict
 @dataclass
 class ServiceView(db.Model):
     __tablename__ = 'service_view'
-
-    service_id: int
-    service_name: str
-    service_price: float
-    service_price_total: float
-    service_reservation_id: int
-    service_quantity: int
-    service_last_modified_by: int
-    service_last_modified_at: datetime
 
     service_id = db.Column('service_id', db.Integer, primary_key=True)
     service_name = db.Column('service_name', db.String)
@@ -50,6 +43,78 @@ class ServiceView(db.Model):
         )
 
     @staticmethod
+    def get_available_services(logger) -> HTTPResponse:
+        service_id = 'service_id'
+        service_name = 'service_name'
+        unit_price = 'unit_price'
+
+        try:
+            db_output = DBHandler.get_available_services()
+
+            db_response = [
+                {
+                    f'{service_id}': item[0],
+                    f'{service_name}': item[1],
+                    f'{unit_price}': item[2]
+                }
+                for item in db_output
+            ]
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json),
+                HTTPStatus.INTERNAL_SERVER_ERROR
+            )
+
+        row_count = len(db_response)
+
+        if row_count == 0:
+            logger.info(f"Could not find any available services")
+
+            return (
+                Response.create(
+                    DatabaseResponseStatus.NOT_FOUND.get_value(),
+                    [],
+                    DatabaseResponseStatus.NOT_FOUND.get_description()),
+                HTTPStatus.OK
+            )
+
+        logger.info(f"Found [{row_count}] available services: {db_response}")
+
+        return (
+            Response.create(
+                DatabaseResponseStatus.OK.get_value(),
+                db_response,
+                DatabaseResponseStatus.OK.get_description()),
+            HTTPStatus.OK
+        )
+
+    @staticmethod
+    def add_service(service_reservation_id: int,
+                    service_id: int,
+                    service_quantity: int) -> HTTPResponse:
+        sql = (
+            f"""
+            INSERT INTO service_view (
+                service_reservation_id, 
+                service_id, 
+                service_quantity
+            )
+            VALUES (
+                {service_reservation_id}, 
+                {service_id}, 
+                {service_quantity}
+            )
+            """
+        )
+
+        return DBHandler.run_sql_query(sql)
+
     def get_available_services(model, logger) -> int:
         filters = request.args.to_dict()
         db_response = None
@@ -113,7 +178,6 @@ class ServiceView(db.Model):
             raise e
 
         if rows is None:
-            raise sqlalchemy.orm.exc.NoResultFound
+            raise NoResultFound
 
         return rows
-

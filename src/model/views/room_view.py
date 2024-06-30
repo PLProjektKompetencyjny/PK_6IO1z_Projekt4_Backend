@@ -1,8 +1,15 @@
+from flask import request
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.utils.utils import db
+from http import HTTPStatus
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
+
+from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
+from src.controller.types.response import Response
+from src.controller.enums.database_response_status import DatabaseResponseStatus
+from src.controller.views.view_controller import ViewController
 
 
 @dataclass
@@ -63,3 +70,44 @@ class RoomView(db.Model):
             (db.session.rollback())
             return None
 
+    @staticmethod
+    def get_available_rooms(logger) -> HTTPResponse:
+        filters = request.args.to_dict()
+        start_date = filters.get('room_reservation_start_date')
+        end_date = filters.get('room_reservation_end_date')
+        room_number_of_single_beds = filters.get('room_number_of_single_beds')
+        room_number_of_double_beds = filters.get('room_number_of_double_beds')
+        room_number_of_child_beds = filters.get('room_number_of_child_beds')
+
+        try:
+            rooms = RoomView.query.filter(
+                RoomView.room_id == func.check_room_availability(
+                    RoomView.room_id,
+                    start_date,
+                    end_date
+                ),
+                room_number_of_single_beds is None or RoomView.room_number_of_single_beds == room_number_of_single_beds,
+                room_number_of_double_beds is None or RoomView.room_number_of_double_beds == room_number_of_double_beds,
+                room_number_of_child_beds is None or RoomView.room_number_of_child_beds == room_number_of_child_beds
+            ).all()
+            
+            return (
+                Response.create(
+                    DatabaseResponseStatus.OK.get_value(),
+                    rooms,
+                    DatabaseResponseStatus.OK.get_description(),
+                ),
+                HTTPStatus.OK,
+            )
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            return (
+                Response.create(
+                    DatabaseResponseStatus.DATABASE_ERROR.get_value(),
+                    [],
+                    json_data_error.json,
+                ),
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            )

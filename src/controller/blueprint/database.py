@@ -12,19 +12,21 @@ from src.controller.views.service_mgmt_controller import ServiceMgmtController
 
 database = Blueprint('database', __name__, url_prefix='/api')
 
-database.add_url_rule('/customers', view_func=CustomerViewController.as_view('customers'), methods=['GET'])
+database.add_url_rule('/customers', view_func=CustomerViewController.as_view('customers'), methods=['GET', 'POST', 'PUT'])
 
 database.add_url_rule('/rooms', view_func=RoomViewController.as_view('rooms'), methods=['GET'])
 
-database.add_url_rule('/invoices', view_func=InvoiceViewController.as_view('invoices'), methods=['GET'])
+database.add_url_rule('/invoices', view_func=InvoiceViewController.as_view('invoices'), methods=['GET', 'POST', 'PUT'])
 
-database.add_url_rule('/users', view_func=UserViewController.as_view('users'), methods=['GET'])
+database.add_url_rule('/users', view_func=UserViewController.as_view('users'), methods=['GET', 'POST'])
 
-database.add_url_rule('/reservations', view_func=ReservationViewController.as_view('reservations'), methods=['GET'])
+database.add_url_rule('/reservations', view_func=ReservationViewController.as_view('reservations'),
+                      methods=['GET', 'POST'])
 
-database.add_url_rule('/services', view_func=ServiceViewController.as_view('services'), methods=['GET'])
+database.add_url_rule('/services', view_func=ServiceViewController.as_view('services'), methods=['GET', 'POST'])
 
-database.add_url_rule('/admin/room_type', view_func=RoomTypeMgmtController.as_view('room_type'), methods=['GET'])
+database.add_url_rule('/admin/room_type', view_func=RoomTypeMgmtController.as_view('room_type'),
+                      methods=['GET', 'POST', 'PUT'])
 
 database.add_url_rule('/admin/room', view_func=RoomMgmtController.as_view('room'), methods=['GET'])
 
