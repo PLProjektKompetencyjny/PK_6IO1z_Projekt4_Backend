@@ -17,7 +17,12 @@ class RoomViewController(ViewController, ABC):
         self.logger = getLogger(__name__)
 
     def get(self):
-        return RoomView.get_available_rooms(getLogger(__name__))
+        filters = request.args.to_dict()
+
+        if filters.get('room_reservation_start_date') is not None and filters.get('room_reservation_end_date') is not None:
+            return RoomView.get_available_rooms(self.logger)
+
+        return self.get_rows(RoomView, self.logger)
 
     def post(self):
         pass
