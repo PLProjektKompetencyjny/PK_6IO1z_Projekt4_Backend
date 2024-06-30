@@ -6,6 +6,7 @@ from flask import request
 
 from src.model.views.reservation_view import ReservationView
 from src.controller.views.view_controller import ViewController
+from src.utils.utils import get_params
 
 
 class ReservationViewController(ViewController, ABC):
@@ -16,14 +17,13 @@ class ReservationViewController(ViewController, ABC):
         return self.get_rows(ReservationView, getLogger(__name__))
 
     def post(self):
-        params = {
-            "customer_id": int(request.form['reservation_customer_id']),
-            "number_of_adults": int(request.form['reservation_number_of_adults']),
-            "number_of_children": int(request.form['reservation_number_of_children']),
-            "start_date": datetime.strptime(request.form['reservation_start_date'], '%d-%m-%Y'),
-            "end_date": datetime.strptime(request.form['reservation_end_date'], '%d-%m-%Y'),
-            "room_id": int(request.form['reservation_room_id'])
-        }
+        excluded_columns = ['reservation_id',
+                            'reservation_status_id',
+                            'reservation_room_status_id',
+                            'reservation_last_modified_by',
+                            'reservation_last_modified_at'
+                            ]
+        params = get_params(request.form, ReservationView, excluded_columns)
 
         self.logger.info(f"New POST request with params: {params}")
 

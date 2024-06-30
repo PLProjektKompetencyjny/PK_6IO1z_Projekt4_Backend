@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from http import HTTPStatus
 
-from src.controller.types.response import Response
 from src.controller.db_handler import DBHandler
 from src.utils.utils import db, HTTPResponse
 
@@ -51,12 +49,15 @@ class ReservationView(db.Model):
         )
 
     @staticmethod
-    def add_reservation(customer_id: int,
-                        number_of_adults: int,
-                        number_of_children: int,
-                        start_date: datetime.date,
-                        end_date: datetime.date,
-                        room_id: int) -> HTTPResponse:
+    def add_reservation(reservation_customer_id: int,
+                        reservation_number_of_adults: int,
+                        reservation_number_of_children: int,
+                        reservation_room_id: int,
+                        reservation_start_date: str,
+                        reservation_end_date: str) -> HTTPResponse:
+        reservation_start_date = datetime.strptime(reservation_start_date, '%d-%m-%Y')
+        reservation_end_date = datetime.strptime(reservation_end_date, '%d-%m-%Y')
+
         sql = (
             f"""    
             INSERT INTO reservation_view (
@@ -68,12 +69,12 @@ class ReservationView(db.Model):
                 reservation_room_id
             )
             VALUES (
-                {customer_id}, 
-                {number_of_adults}, 
-                {number_of_children}, 
-                '{start_date.strftime('%Y-%m-%d 15:00:00')}', 
-                '{end_date.strftime('%Y-%m-%d 12:00:00')}', 
-                {room_id}
+                {reservation_customer_id}, 
+                {reservation_number_of_adults}, 
+                {reservation_number_of_children}, 
+                '{reservation_start_date.strftime('%Y-%m-%d 15:00:00')}', 
+                '{reservation_end_date.strftime('%Y-%m-%d 12:00:00')}', 
+                {reservation_room_id}
             );
 
             SELECT MAX(reservation_id) FROM reservation_view;
