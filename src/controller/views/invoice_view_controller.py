@@ -52,8 +52,5 @@ class InvoiceViewController(ViewController, ABC):
             **params
         )
 
-    def put(self):
-        pass
-
     def delete(self):
         pass
