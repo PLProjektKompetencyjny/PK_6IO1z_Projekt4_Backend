@@ -73,20 +73,32 @@ class RoomView(db.Model):
     @staticmethod
     def get_available_rooms(logger) -> HTTPResponse:
         filters = request.args.to_dict()
-        start_date = None
-        end_date = None
-
-        if 'room_reservation_start_date' in filters:
-            start_date = filters['room_reservation_start_date']
-            del filters['room_reservation_start_date']
-
-        if 'room_reservation_end_date' in filters:
-            end_date = filters['room_reservation_end_date']
-            del filters['room_reservation_end_date']
+        start_date = filters.get('room_reservation_start_date')
+        end_date = filters.get('room_reservation_end_date')
+        room_number_of_single_beds = filters.get('room_number_of_single_beds')
+        room_number_of_double_beds = filters.get('room_number_of_double_beds')
+        room_number_of_child_beds = filters.get('room_number_of_child_beds')
 
         try:
-            query = ViewController.apply_model_filters(RoomView, filters)
-            rooms = query.all()
+            rooms = RoomView.query.filter(
+                RoomView.room_id == func.check_room_availability(
+                    RoomView.room_id,
+                    start_date,
+                    end_date
+                ),
+                room_number_of_single_beds is None or RoomView.room_number_of_single_beds == room_number_of_single_beds,
+                room_number_of_double_beds is None or RoomView.room_number_of_double_beds == room_number_of_double_beds,
+                room_number_of_child_beds is None or RoomView.room_number_of_child_beds == room_number_of_child_beds
+            ).all()
+            
+            return (
+                Response.create(
+                    DatabaseResponseStatus.OK.get_value(),
+                    rooms,
+                    DatabaseResponseStatus.OK.get_description(),
+                ),
+                HTTPStatus.OK,
+            )
 
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
@@ -99,36 +111,4 @@ class RoomView(db.Model):
                 ),
                 HTTPStatus.INTERNAL_SERVER_ERROR,
             )
-
-        row_count = rooms.__len__()
-
-        if not row_count:
-            logger.error(
-                f"No rows found in [{RoomView.__tablename__}] with filters [{filters}]"
-            )
-            return (
-                Response.create(
-                    DatabaseResponseStatus.NOT_FOUND.get_value(),
-                    [],
-                    DatabaseResponseStatus.NOT_FOUND.get_description(),
-                ),
-                HTTPStatus.OK,
-            )
-
-        available_rooms = []
-        for room in rooms:
-            if (start_date is None or end_date is None or RoomView.check_room_availability(room.room_id, start_date,
-                                                                                           end_date) is not None):
-                available_rooms.append(room)
-
-        logger.info(
-            f"Found [{available_rooms.__len__()}] rows in [{RoomView.__tablename__}] with filters [{filters}]"
-        )
-        return (
-            Response.create(
-                DatabaseResponseStatus.OK.get_value(),
-                available_rooms,
-                DatabaseResponseStatus.OK.get_description(),
-            ),
-            HTTPStatus.OK,
-        )
+            

@@ -58,7 +58,7 @@ LOGGING_CONFIG = {
         },
         "file": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "/var/log/flask-app/app.log",
+            "filename": "app.log",
             "when": "D",
             "interval": 1,
             "backupCount": 5,
