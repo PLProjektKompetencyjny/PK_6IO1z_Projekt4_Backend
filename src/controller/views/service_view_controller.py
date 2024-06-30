@@ -25,6 +25,7 @@ class ServiceViewController(ViewController, ABC):
         excluded_columns = [
             'service_name',
             'service_price',
+            'service_price_total',
             'service_last_modified_at',
             'service_last_modified_by'
         ]
@@ -38,7 +39,34 @@ class ServiceViewController(ViewController, ABC):
         )
 
     def put(self):
-        pass
+        excluded_columns = [
+            'service_name',
+            'service_price',
+            'service_price_total',
+            'service_last_modified_at',
+            'service_last_modified_by'
+        ]
+        params = get_params(request.form, ServiceView, excluded_columns)
+
+        self.logger.info(f"New PUT request with params: {params}")
+
+        return ServiceView.update_service(
+            **params
+        )
 
     def delete(self):
-        pass
+        excluded_columns = [
+            'service_name',
+            'service_price',
+            'service_price_total',
+            'service_quantity',
+            'service_last_modified_by',
+            'service_last_modified_at'
+        ]
+        params = get_params(request.form, ServiceView, excluded_columns)
+
+        self.logger.info(f"New DELETE request with params: {params}")
+
+        return ServiceView.delete_service(
+            **params
+        )

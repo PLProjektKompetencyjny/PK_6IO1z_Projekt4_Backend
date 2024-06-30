@@ -115,6 +115,38 @@ class ServiceView(db.Model):
 
         return DBHandler.run_sql_query(sql)
 
+    @staticmethod
+    def update_service(service_id: int,
+                       service_reservation_id: int,
+                       service_quantity: float) -> HTTPResponse:
+        sql = (
+            f"""
+            UPDATE 
+                service_view
+            SET
+                service_quantity = {service_quantity}
+            WHERE 
+                service_id = {service_id}
+                AND service_reservation_id = {service_reservation_id}
+            """
+        )
+
+        return DBHandler.run_sql_query(sql)
+
+    @staticmethod
+    def delete_service(service_id: int, service_reservation_id: int) -> HTTPResponse:
+        sql = (
+            f"""
+                DELETE FROM 
+                    service_view
+                WHERE 
+                    service_id = {service_id}
+                    AND service_reservation_id = {service_reservation_id}
+                """
+        )
+
+        return DBHandler.run_sql_query(sql)
+
     def get_available_services(model, logger) -> int:
         filters = request.args.to_dict()
         db_response = None
@@ -170,8 +202,8 @@ class ServiceView(db.Model):
                                     ServiceView.service_price.label('service_price'),
                                     ServiceView.service_quantity.label('service_quantity'),
                                     ServiceView.service_price_total.label('service_price_total')
-                    ).filter(ServiceView.service_reservation_id == reservation_id
-                    ).all()
+                                    ).filter(ServiceView.service_reservation_id == reservation_id
+                                             ).all()
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
