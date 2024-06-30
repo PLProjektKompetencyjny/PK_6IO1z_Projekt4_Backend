@@ -9,9 +9,9 @@ class PGErrorsCodes:
         "23516": "Email to Username",
         "23517": "No Username Account",
         "23518": "Too Many People",
-        "23518": "Cannot Authenticate User",
         "23519": "User is Not Active",
         "23520": "Cannot Change Password",
+        "23521": "Cannot Authenticate User",
         "23998": "No Operation Performed",
         "23999": "Operation Not Permitted",
     }
