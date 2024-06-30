@@ -63,11 +63,13 @@ class InvoiceView(db.Model):
             INSERT INTO 
                 invoice_view (invoice_reservation_id)
             VALUES 
-                ({invoice_reservation_id})
+                ({invoice_reservation_id});
+                
+            SELECT MAX(invoice_id) FROM invoice_view;
             """
         )
 
-        return DBHandler.run_sql_query(sql)
+        return DBHandler.run_sql_query_scalar(sql, 'invoice_id')
 
     @staticmethod
     def update_invoice(invoice_id: int, invoice_status_id: int) -> HTTPResponse:

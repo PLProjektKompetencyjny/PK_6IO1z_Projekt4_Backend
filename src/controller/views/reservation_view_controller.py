@@ -17,12 +17,13 @@ class ReservationViewController(ViewController, ABC):
         return self.get_rows(ReservationView, getLogger(__name__))
 
     def post(self):
-        excluded_columns = ['reservation_id',
-                            'reservation_status_id',
-                            'reservation_room_status_id',
-                            'reservation_last_modified_by',
-                            'reservation_last_modified_at'
-                            ]
+        excluded_columns = [
+            'reservation_id',
+            'reservation_status_id',
+            'reservation_room_status_id',
+            'reservation_last_modified_by',
+            'reservation_last_modified_at'
+        ]
         params = get_params(request.form, ReservationView, excluded_columns)
 
         self.logger.info(f"New POST request with params: {params}")

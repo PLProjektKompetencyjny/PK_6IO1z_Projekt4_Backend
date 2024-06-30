@@ -47,7 +47,6 @@ class InvoiceViewController(ViewController, ABC):
             'invoice_last_modified_by',
             'invoice_last_modified_at'
         ]
-
         params = get_params(request.form, InvoiceView, excluded_columns)
 
         self.logger.info(f"New PUT request with params: {params}")
