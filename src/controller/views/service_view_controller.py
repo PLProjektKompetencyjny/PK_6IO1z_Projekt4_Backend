@@ -22,9 +22,9 @@ class ServiceViewController(ViewController, ABC):
 
     def post(self):
         params = {
-            "reservation_id": int(request.form['reservation_id']),
-            "sid": int(request.form['id']),
-            "quantity": int(request.form['quantity']),
+            "reservation_id": int(request.form['service_reservation_id']),
+            "sid": int(request.form['service_id']),
+            "quantity": int(request.form['service_quantity']),
         }
 
         self.logger.info(f"New POST request with params: {params}")

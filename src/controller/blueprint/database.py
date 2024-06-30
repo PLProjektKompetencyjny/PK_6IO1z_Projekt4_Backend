@@ -12,7 +12,7 @@ from src.controller.views.service_mgmt_controller import ServiceMgmtController
 
 database = Blueprint('database', __name__, url_prefix='/api')
 
-database.add_url_rule('/customers', view_func=CustomerViewController.as_view('customers'), methods=['GET', 'PUT'])
+database.add_url_rule('/customers', view_func=CustomerViewController.as_view('customers'), methods=['GET', 'POST', 'PUT'])
 
 database.add_url_rule('/rooms', view_func=RoomViewController.as_view('rooms'), methods=['GET'])
 

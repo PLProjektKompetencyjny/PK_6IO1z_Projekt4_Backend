@@ -17,12 +17,12 @@ class ReservationViewController(ViewController, ABC):
 
     def post(self):
         params = {
-            "customer_id": int(request.form['customer_id']),
-            "number_of_adults": int(request.form['number_of_adults']),
-            "number_of_children": int(request.form['number_of_children']),
-            "start_date": datetime.strptime(request.form['start_date'], '%d-%m-%Y'),
-            "end_date": datetime.strptime(request.form['end_date'], '%d-%m-%Y'),
-            "room_id": int(request.form['room_id'])
+            "customer_id": int(request.form['reservation_customer_id']),
+            "number_of_adults": int(request.form['reservation_number_of_adults']),
+            "number_of_children": int(request.form['reservation_number_of_children']),
+            "start_date": datetime.strptime(request.form['reservation_start_date'], '%d-%m-%Y'),
+            "end_date": datetime.strptime(request.form['reservation_end_date'], '%d-%m-%Y'),
+            "room_id": int(request.form['reservation_room_id'])
         }
 
         self.logger.info(f"New POST request with params: {params}")

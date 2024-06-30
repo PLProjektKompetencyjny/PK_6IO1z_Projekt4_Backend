@@ -26,8 +26,8 @@ class InvoiceView(db.Model):
     invoice_last_modified_at: datetime
 
     invoice_id = db.Column('invoice_id', db.Integer, primary_key=True, autoincrement=True)
-    invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer)
-    invoice_room_id = db.Column('invoice_room_id', db.Integer)
+    invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer, primary_key=True)
+    invoice_room_id = db.Column('invoice_room_id', db.Integer, primary_key=True, autoincrement=True)
     invoice_room_price_gross = db.Column('invoice_room_price_gross', db.Float)
     invoice_date = db.Column('invoice_date', db.DateTime)
     invoice_price_gross = db.Column('invoice_price_gross', db.Float)
@@ -57,13 +57,13 @@ class InvoiceView(db.Model):
         )
 
     @staticmethod
-    def add_invoice(reservation_id: int) -> HTTPResponse:
+    def add_invoice(invoice_reservation_id: int) -> HTTPResponse:
         sql = (
             f"""    
             INSERT INTO 
                 invoice_view (invoice_reservation_id)
             VALUES 
-                ({reservation_id})
+                ({invoice_reservation_id})
             """
         )
 
