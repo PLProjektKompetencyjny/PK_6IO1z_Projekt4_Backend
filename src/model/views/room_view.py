@@ -60,7 +60,7 @@ class RoomView(db.Model):
 
     @staticmethod
     def check_room_availability(
-            room_id: int, start_date: datetime, end_date: datetime
+        room_id: int, start_date: datetime, end_date: datetime
     ) -> int:
         try:
             return db.session.query(
@@ -111,4 +111,3 @@ class RoomView(db.Model):
                 ),
                 HTTPStatus.INTERNAL_SERVER_ERROR,
             )
-            

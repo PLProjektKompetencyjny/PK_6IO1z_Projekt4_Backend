@@ -2,7 +2,13 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from src.controller.db_handler import DBHandler
-from src.utils.utils import db, HTTPResponse
+from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
+
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
+
+from src.model.views.invoice_view import InvoiceView
+from src.model.views.room_view import RoomView
 
 
 @dataclass
@@ -82,3 +88,43 @@ class ReservationView(db.Model):
         )
 
         return DBHandler.run_sql_query_scalar(sql, 'reservation_id')
+
+    def get_customer_id_from_reservation_id(reservation_id, logger):
+        try:
+            customer_id = db.session.query(
+                ReservationView.reservation_customer_id
+            ).filter(
+                ReservationView.reservation_id == reservation_id
+            ).first()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if customer_id is None:
+            raise NoResultFound
+
+        return customer_id
+      
+    @staticmethod
+    def get_details_for_invoice_about_reservation(reservation_id: id, logger):
+        try:
+            rows = db.session.query(
+                ReservationView.reservation_room_id.label('room_id'),
+                ReservationView.reservation_number_of_adults.label('number_of_adults'),
+                ReservationView.reservation_number_of_children.label('number_of_children'),
+                (ReservationView.reservation_end_date - ReservationView.reservation_start_date).label('duration'),
+            ).filter(
+                ReservationView.reservation_id == reservation_id
+            ).order_by(ReservationView.reservation_room_id
+            ).all()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+
+        if rows is None:
+            raise NoResultFound
+
+        return rows

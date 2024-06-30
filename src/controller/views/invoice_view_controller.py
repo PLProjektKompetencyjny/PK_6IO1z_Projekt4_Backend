@@ -10,9 +10,6 @@ from src.utils.utils import getViewFields, get_params
 
 
 class InvoiceViewController(ViewController, ABC):
-    def __init__(self):
-        self.logger = getLogger(__name__)
-
     def get(self):
         return self.get_rows(InvoiceView, getLogger(__name__))
 
@@ -54,6 +51,9 @@ class InvoiceViewController(ViewController, ABC):
         return InvoiceView.update_invoice(
             **params
         )
+
+    def put(self):
+        pass
 
     def delete(self):
         pass

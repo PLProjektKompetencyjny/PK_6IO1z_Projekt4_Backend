@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
@@ -59,8 +59,8 @@ def signUp():
         payload = {
             "user_id": new_user_id,
             "email": email,
-            "exp": datetime.now() + timedelta(minutes=60),  # Valid for 60 mins
-            "iat": datetime.now(),
+            "exp": datetime.utcnow() + timedelta(minutes=60),  # Valid for 60 mins
+            "iat": datetime.utcnow(),
             "sub": new_user_id,
         }
 
@@ -105,6 +105,7 @@ def signIn():
         user = db.session.query(UserView).filter(UserView.user_id == user_id).one()
 
         payload = {
+            "user_is_admin": user.user_is_admin,
             "user_id": user_id,
             "email": email,
             "exp": datetime.utcnow() + timedelta(minutes=60),  # Valid for 60 mins
@@ -137,10 +138,19 @@ def signIn():
 
 # Endpoint jest przykładowy w celach poglądowych jak zabezpieczać
 # nieautoryzowane żądania
-@auth.route("auth/secured", methods=["POST"])
 @jwt_required()
+@auth.route("auth/secured", methods=["POST"])
 def secured():
-    return jsonify(True)
+    data = decode_access_token()
+    return jsonify(data)
+
+
+def decode_access_token() -> dict[str, any] or None:
+    auth_header_value = request.headers.get("Authorization")
+    if auth_header_value is None:
+        return None
+    access_token = auth_header_value.split()[1]
+    return jwt.decode(access_token, JWT_SECRET_KEY, algorithms=["HS256"])
 
 
 def create_access_token(payload: dict[str, any]) -> str:

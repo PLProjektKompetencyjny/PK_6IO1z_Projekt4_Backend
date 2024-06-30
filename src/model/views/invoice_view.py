@@ -1,33 +1,27 @@
 from dataclasses import dataclass
 from datetime import datetime
+
 from http import HTTPStatus
 
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 
 from src.controller.db_handler import DBHandler
 from src.model.enums.invoice_status import InvoiceStatus
 from src.controller.types.response import Response
-from src.utils.utils import db, HTTPResponse
-
+from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 
 @dataclass
 class InvoiceView(db.Model):
     __tablename__ = 'invoice_view'
-
-    invoice_id: int
-    invoice_reservation_id: int
-    invoice_room_id: int
-    invoice_room_price_gross: float
-    invoice_date: datetime
-    invoice_price_gross: float
-    invoice_is_paid: bool
-    invoice_status_id: int
-    invoice_last_modified_by: int
-    invoice_last_modified_at: datetime
-
+    
     invoice_id = db.Column('invoice_id', db.Integer, primary_key=True, autoincrement=True)
     invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer, primary_key=True)
     invoice_room_id = db.Column('invoice_room_id', db.Integer, primary_key=True, autoincrement=True)
+    invoice_id = db.Column('invoice_id', db.Integer, primary_key=True)
+    invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer)
+    invoice_room_id = db.Column('invoice_room_id', db.Integer, primary_key=True)
     invoice_room_price_gross = db.Column('invoice_room_price_gross', db.Float)
     invoice_date = db.Column('invoice_date', db.DateTime)
     invoice_price_gross = db.Column('invoice_price_gross', db.Float)
@@ -96,3 +90,62 @@ class InvoiceView(db.Model):
             )
 
         return DBHandler.run_sql_query(sql)
+    
+    @staticmethod
+    def calculate_invoice_price(reservation_id: int) -> None:
+        (
+            db
+            .session
+            .query(
+                func
+                .calculate_invoice_price(reservation_id)
+            )
+            .all()
+        )
+        (
+            db
+            .session
+            .commit()
+        )
+        return None
+
+    @staticmethod
+    def get_invoice_details_for_single_reservation(reservation_id: int, logger):
+        try:
+            rows = db.session.query(
+                InvoiceView.invoice_date.label('invoice_date'),
+                InvoiceView.invoice_id.label('invoice_id'),
+                InvoiceView.invoice_price_gross.label('invoice_price_gross')
+            ).filter(
+                InvoiceView.invoice_reservation_id == reservation_id
+            ).first()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if rows is None:
+            raise NoResultFound
+
+        return rows
+
+    @staticmethod
+    def get_rooms_prices_for_reservation(reservation_id: int, logger):
+        try:
+            rows = db.session.query(
+                InvoiceView.invoice_room_price_gross.label('invoice_room_price_gross')
+            ).filter(
+                InvoiceView.invoice_reservation_id == reservation_id
+            ).order_by(
+                InvoiceView.invoice_room_id
+            ).all()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if rows is None:
+            raise NoResultFound
+
+        return rows
+      
