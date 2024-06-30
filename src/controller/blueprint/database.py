@@ -21,7 +21,7 @@ database.add_url_rule('/invoices', view_func=InvoiceViewController.as_view('invo
 database.add_url_rule('/users', view_func=UserViewController.as_view('users'), methods=['GET', 'POST'])
 
 database.add_url_rule('/reservations', view_func=ReservationViewController.as_view('reservations'),
-                      methods=['GET', 'POST'])
+                      methods=['GET', 'POST', 'PUT', 'DELETE'])
 
 database.add_url_rule('/services', view_func=ServiceViewController.as_view('services'), methods=['GET', 'POST'])
 

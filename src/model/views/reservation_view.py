@@ -89,6 +89,51 @@ class ReservationView(db.Model):
 
         return DBHandler.run_sql_query_scalar(sql, 'reservation_id')
 
+    @staticmethod
+    def update_reservation(reservation_id: int,
+                           reservation_status_id: int,
+                           reservation_number_of_adults: int,
+                           reservation_number_of_children: int,
+                           reservation_start_date: str,
+                           reservation_end_date: str,
+                           reservation_room_id: int,
+                           reservation_room_status_id: int) -> HTTPResponse:
+
+        reservation_start_date = datetime.strptime(reservation_start_date, '%d-%m-%Y')
+        reservation_end_date = datetime.strptime(reservation_end_date, '%d-%m-%Y')
+
+        sql = (
+            f"""
+            UPDATE reservation_view
+            SET 
+                reservation_status_id = {reservation_status_id},
+                room_number_of_adults = {reservation_number_of_adults},
+                room_number_of_children = {reservation_number_of_children},
+                reservation_start_date = '{reservation_start_date.strftime('%d-%m-%Y 15:00:00')}',
+                reservation_end_date = '{reservation_end_date.strftime('%d-%m-%Y 12:00:00')}',
+                reservation_room_status_id = {reservation_room_status_id}
+            WHERE 
+                reservation_id = {reservation_id}
+                AND reservation_room_id = {reservation_room_id};
+            """
+        )
+
+        return DBHandler.run_sql_query(sql)
+
+    @staticmethod
+    def delete_reservation(reservation_id: int, reservation_room_id: int) -> HTTPResponse:
+        sql = (
+            f"""
+            DELETE FROM 
+                reservation_view
+            WHERE 
+                reservation_id = {reservation_id}
+                AND reservation_room_id = {reservation_room_id};
+            """
+        )
+
+        return DBHandler.run_sql_query(sql)
+
     def get_customer_id_from_reservation_id(reservation_id, logger):
         try:
             customer_id = db.session.query(
@@ -105,7 +150,7 @@ class ReservationView(db.Model):
             raise NoResultFound
 
         return customer_id
-      
+
     @staticmethod
     def get_details_for_invoice_about_reservation(reservation_id: id, logger):
         try:
@@ -117,12 +162,11 @@ class ReservationView(db.Model):
             ).filter(
                 ReservationView.reservation_id == reservation_id
             ).order_by(ReservationView.reservation_room_id
-            ).all()
+                       ).all()
         except SQLAlchemyError as e:
             json_data_error = sqlalchemy_error_to_dict(e)
             logger.error(json_data_error)
             raise e
-
 
         if rows is None:
             raise NoResultFound

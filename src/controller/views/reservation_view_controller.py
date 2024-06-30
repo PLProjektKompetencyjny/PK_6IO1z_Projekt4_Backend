@@ -33,7 +33,35 @@ class ReservationViewController(ViewController, ABC):
         )
 
     def put(self):
-        pass
+        excluded_columns = [
+            'reservation_customer_id',
+            'reservation_last_modified_by',
+            'reservation_last_modified_at'
+        ]
+        params = get_params(request.form, ReservationView, excluded_columns)
+
+        self.logger.info(f'New PUT request with params: {params}')
+
+        return ReservationView.update_reservation(
+            **params
+        )
 
     def delete(self):
-        pass
+        excluded_columns = [
+            'reservation_customer_id',
+            'reservation_status_id',
+            'reservation_number_of_adults',
+            'reservation_number_of_children',
+            'reservation_start_date',
+            'reservation_end_date',
+            'reservation_room_status_id',
+            'reservation_last_modified_by',
+            'reservation_last_modified_at'
+        ]
+        params = get_params(request.form, ReservationView, excluded_columns)
+
+        self.logger.info(f'New DELETE request with params: {params}')
+
+        return ReservationView.delete_reservation(
+            **params
+        )
