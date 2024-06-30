@@ -5,6 +5,7 @@ from flask import request
 
 from src.model.views.room_type_mgmt import RoomTypeMgmt
 from src.controller.views.view_controller import ViewController
+from src.utils.utils import get_params
 
 
 class RoomTypeMgmtController(ViewController, ABC):
@@ -15,14 +16,12 @@ class RoomTypeMgmtController(ViewController, ABC):
         return self.get_rows(RoomTypeMgmt, getLogger(__name__))
 
     def post(self):
-        params = {
-            'num_of_single_beds': int(request.form['num_of_single_beds']),
-            'num_of_double_beds': str(request.form['num_of_double_beds']),
-            'num_of_child_beds': str(request.form['num_of_child_beds']),
-            'adult_price_gross': str(request.form['adult_price_gross']),
-            'child_price_gross': str(request.form['child_price_gross']),
-            'photos_dir': str(request.form['photos_dir']),
-        }
+        excluded_columns = [
+            'id',
+            'last_modified_at',
+            'last_modified_by'
+        ]
+        params = get_params(request.form, RoomTypeMgmt, excluded_columns)
 
         self.logger.info(f"New POST request with params: {params}")
 
@@ -33,17 +32,13 @@ class RoomTypeMgmtController(ViewController, ABC):
         return result
 
     def put(self):
-        params = {
-            'room_type_id': int(request.form['id']),
-            'num_of_single_beds': int(request.form['num_of_single_beds']),
-            'num_of_double_beds': str(request.form['num_of_double_beds']),
-            'num_of_child_beds': str(request.form['num_of_child_beds']),
-            'adult_price_gross': str(request.form['adult_price_gross']),
-            'child_price_gross': str(request.form['child_price_gross']),
-            'photos_dir': str(request.form['photos_dir']),
-        }
+        excluded_columns = [
+            'last_modified_at',
+            'last_modified_by'
+        ]
+        params = get_params(request.form, RoomTypeMgmt, excluded_columns)
 
-        self.logger.info(f"New POST request with params: {params}")
+        self.logger.info(f"New PUT request with params: {params}")
 
         return RoomTypeMgmt.update_room_type(
             **params

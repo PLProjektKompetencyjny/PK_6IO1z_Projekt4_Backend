@@ -21,7 +21,7 @@ class RoomTypeMgmt(db.Model):
     last_modified_by: int
     last_modified_at: datetime
 
-    id = db.Column('id', db.Integer, primary_key=True)
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     num_of_single_beds = db.Column('num_of_single_beds', db.Integer)
     num_of_double_beds = db.Column('num_of_double_beds', db.Integer)
     num_of_child_beds = db.Column('num_of_child_beds', db.Integer)
@@ -67,14 +67,16 @@ class RoomTypeMgmt(db.Model):
                 {adult_price_gross},
                 {child_price_gross},
                 '{photos_dir}'
-            )
+            );
+            
+            SELECT MAX(id) FROM room_type_mgmt; 
             """
         )
 
-        return DBHandler.run_sql_query(sql)
+        return DBHandler.run_sql_query_scalar(sql, 'room_type_id')
 
     @staticmethod
-    def update_room_type(room_type_id: int,
+    def update_room_type(id: int,
                          num_of_single_beds: int,
                          num_of_double_beds: int,
                          num_of_child_beds: int,
@@ -92,7 +94,7 @@ class RoomTypeMgmt(db.Model):
                 child_price_gross = {child_price_gross},
                 photos_dir = '{photos_dir}'
             WHERE 
-                id = {room_type_id}
+                id = {id}
             """
         )
 

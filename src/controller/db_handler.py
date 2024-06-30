@@ -58,15 +58,15 @@ class DBHandler:
                     json_data_error.json),
                 HTTPStatus.INTERNAL_SERVER_ERROR)
 
-        logger.info(f'NEW RECORD ID: {new_id}')
+        logger.info(f'New {id_column_name}: {new_id}')
 
         return (
             Response.create(
                 DatabaseResponseStatus.OK.get_value(),
                 [
-                  {
-                    id_column_name: new_id
-                  }
+                    {
+                        id_column_name: new_id
+                    }
                 ],
                 DatabaseResponseStatus.OK.get_description(),
             ),
