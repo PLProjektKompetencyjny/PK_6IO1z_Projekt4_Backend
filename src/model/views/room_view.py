@@ -6,7 +6,7 @@ from http import HTTPStatus
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.utils.utils import db, HTTPResponse
+from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.controller.views.view_controller import ViewController
@@ -60,7 +60,7 @@ class RoomView(db.Model):
 
     @staticmethod
     def check_room_availability(
-        room_id: int, start_date: datetime, end_date: datetime
+            room_id: int, start_date: datetime, end_date: datetime
     ) -> int:
         try:
             return db.session.query(
@@ -69,7 +69,7 @@ class RoomView(db.Model):
         except:
             (db.session.rollback())
             return None
-            
+
     @staticmethod
     def get_available_rooms(logger) -> HTTPResponse:
         filters = request.args.to_dict()
@@ -117,7 +117,8 @@ class RoomView(db.Model):
 
         available_rooms = []
         for room in rooms:
-            if (start_date is None or end_date is None or RoomView.check_room_availability(room.room_id, start_date, end_date) is not None):
+            if (start_date is None or end_date is None or RoomView.check_room_availability(room.room_id, start_date,
+                                                                                           end_date) is not None):
                 available_rooms.append(room)
 
         logger.info(
