@@ -19,3 +19,16 @@ def sqlalchemy_error_to_dict(e):
             PostgresErrorHandler.getErrorInfo(e)
         )
     )
+
+
+def getViewFields(classObject, excludedColumns) -> list[str]:
+    all_attributes = (dir(classObject))
+    field_names = [
+        attr for attr in all_attributes
+        if not callable(getattr(classObject, attr))
+        and not attr.startswith("_")
+        and not attr in ['metadata', 'query', 'registry']
+        and not attr in excludedColumns
+    ]
+    
+    return field_names

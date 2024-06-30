@@ -1,11 +1,11 @@
 from abc import ABC
 from logging import getLogger
-
 from flask import request
 
 from src.model.views.customer_view import CustomerView
 from src.controller.views.view_controller import ViewController
 
+from src.utils.utils import getViewFields
 
 class CustomerViewController(ViewController, ABC):
     def __init__(self):
@@ -15,56 +15,23 @@ class CustomerViewController(ViewController, ABC):
         return self.get_rows(CustomerView, getLogger(__name__))
 
     def post(self):
-        params = {
-            'customer_email': str(request.form['customer_email']),
-            'customer_name': str(request.form['customer_name']),
-            'customer_surname': str(request.form['customer_surname']),
-            'customer_phone': str(request.form['customer_phone']),
-            'customer_city': str(request.form['customer_city']),
-            'customer_postal_code': str(request.form['customer_postal_code']),
-            'customer_street': str(request.form['customer_street']),
-            'customer_building_number': str(request.form['customer_building_number']),
-        }
-
-        if request.form['customer_nip_number'] is not None and request.form['customer_nip_number'] != '':
-            params['customer_nip_number'] = str(request.form['customer_nip_number'])
-        else:
-            params['customer_nip_number'] = None
-
-        if request.form['customer_last_modified_by'] is not None and request.form['customer_last_modified_by'] != '':
-            params['customer_last_modified_by'] = int(request.form['customer_last_modified_by'])
-        else:
-            params['customer_last_modified_by'] = None
+        excluded_columns = ['customer_last_modified_at', 'customer_id']
+        params = {}
+        for key in getViewFields(CustomerView, excluded_columns):
+            params[key] = request.form.get(key, None)
 
         self.logger.info(f"New POST request with params: {params}")
 
         return CustomerView.add_customer(**params)
 
     def put(self):
-        params = {
-            'customer_id': int(request.form['customer_id']),
-            'customer_email': str(request.form['customer_email']),
-            'customer_name': str(request.form['customer_name']),
-            'customer_surname': str(request.form['customer_surname']),
-            'customer_phone': str(request.form['customer_phone']),
-            'customer_city': str(request.form['customer_city']),
-            'customer_postal_code': str(request.form['customer_postal_code']),
-            'customer_street': str(request.form['customer_street']),
-            'customer_building_number': str(request.form['customer_building_number']),
-        }
+        excluded_columns = ['customer_last_modified_at']
+        params = {}
+        for key in getViewFields(CustomerView, excluded_columns):
+            params[key] = request.form.get(key, None)
 
-        if request.form['customer_nip_number'] is not None and request.form['customer_nip_number'] != '':
-            params['customer_nip_number'] = str(request.form['customer_nip_number'])
-        else:
-            params['customer_nip_number'] = None
-
-        if request.form['customer_last_modified_by'] is not None and request.form['customer_last_modified_by'] != '':
-            params['customer_last_modified_by'] = int(request.form['customer_last_modified_by'])
-        else:
-            params['customer_last_modified_by'] = None
-
+        
         self.logger.info(f"New PUT request with params: {params}")
-
         return CustomerView.update_customer(
             **params
         )
