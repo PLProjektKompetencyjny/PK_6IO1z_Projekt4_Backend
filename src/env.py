@@ -9,3 +9,7 @@ DB_PASSWORD = getenv('DB_Password', 'cba')
 JWT_SECRET_KEY = getenv('JWT_SECRET_KEY', 'tn_jwt_secret')
 
 SECRET_KEY = getenv('SECRET_KEY', 'my_precious_secret_key')
+
+LOGO_HTTPS_PATH = getenv('LOGO_HTTPS_PATH', default='https://lh3.googleusercontent.com/d/1fBRxFZ_CbRr99CYcK89wAqAmr4PVbdKE')
+EMAIL_ADDRESS = getenv('EMAIL_ADDRESS', default='travelnest2407@gmail.com')
+EMAIL_PASS = getenv('EMAIL_PASS', default='ssym dqry bsdz nlzd')
