@@ -3,7 +3,6 @@ from flask import current_app as app
 
 from smtplib import SMTPResponseException
 from http import HTTPStatus
-import jwtg
 
 from src.model.types.mail.ActivationMessageMail import ActivationMessageMail
 from src.model.types.mail.InvoiceMessageMail import InvoiceMessageMail
