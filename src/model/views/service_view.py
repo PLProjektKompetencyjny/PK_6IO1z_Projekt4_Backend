@@ -44,9 +44,12 @@ class ServiceView(db.Model):
 
     @staticmethod
     def get_available_services(logger) -> HTTPResponse:
+        if logger is None:
+            logger = getLogger(__name__)
+        
         service_id = 'service_id'
         service_name = 'service_name'
-        unit_price = 'unit_price'
+        service_price = 'service_price'
 
         try:
             db_output = DBHandler.get_available_services()
@@ -55,7 +58,7 @@ class ServiceView(db.Model):
                 {
                     f'{service_id}': item[0],
                     f'{service_name}': item[1],
-                    f'{unit_price}': item[2]
+                    f'{service_price}': item[2]
                 }
                 for item in db_output
             ]
@@ -146,54 +149,6 @@ class ServiceView(db.Model):
         )
 
         return DBHandler.run_sql_query(sql)
-
-    def get_available_services(model, logger) -> int:
-        filters = request.args.to_dict()
-        db_response = None
-
-        try:
-            db_output = (
-                db
-                .session
-                .query(
-                    func
-                    .get_available_services()
-                    .table_valued(
-                        'service_id',
-                        'service_name',
-                        'unit_price'
-                    )
-                )
-                .all()
-            )
-            db_response = []
-            for item in db_output:
-                db_response.append(
-                    ServiceView(
-                        **{
-                            "service_id": item[0],
-                            "service_name": item[1],
-                            "service_price": item[2]
-                        }
-                    )
-                )
-        except SQLAlchemyError as e:
-            json_data_error = sqlalchemy_error_to_dict(e)
-            logger.error(json_data_error)
-            return Response.create(DatabaseResponseStatus.DATABASE_ERROR.get_value(), [],
-                                   json_data_error.json), HTTPStatus.OK
-
-        row_count = len(db_response)
-
-        if not row_count:
-            logger.error(
-                f"No rows found in [{model.__tablename__}] with filters [{filters}]")
-            return Response.create(DatabaseResponseStatus.NOT_FOUND.get_value(), [],
-                                   DatabaseResponseStatus.NOT_FOUND.get_description()), HTTPStatus.OK
-
-        logger.info(f"Found [{row_count}] rows in [{model.__tablename__}] with filters [{filters}]")
-        return Response.create(DatabaseResponseStatus.OK.get_value(), db_response,
-                               DatabaseResponseStatus.OK.get_description()), HTTPStatus.OK
 
     @staticmethod
     def get_services_by_reservation_id(reservation_id: int, logger):

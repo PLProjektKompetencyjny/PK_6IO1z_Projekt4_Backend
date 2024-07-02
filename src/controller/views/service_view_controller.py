@@ -17,9 +17,9 @@ class ServiceViewController(ViewController, ABC):
         self.logger.info(f"New GET request with params: {params}")
 
         if len(params.items()) == 0:
-            return ServiceView.get_available_services(getLogger(__name__))
+            return ServiceView.get_available_services(self.logger)
 
-        return self.get_rows(ServiceView, getLogger(__name__))
+        return self.get_rows(ServiceView, self.logger)
 
     def post(self):
         excluded_columns = [
