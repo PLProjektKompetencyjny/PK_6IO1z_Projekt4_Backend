@@ -41,12 +41,21 @@ class ServiceView(db.Model):
             f'service_last_modified_by={self.service_last_modified_by}, '
             f'service_last_modified_at={self.service_last_modified_at})>'
         )
+        
+    def to_dict(self):
+        return {
+            'service_id': self.service_id,
+            'service_name': self.service_name,
+            'service_price': self.service_price,
+            'service_price_total': self.service_price_total,
+            'service_reservation_id': self.service_reservation_id,
+            'service_quantity': self.service_quantity,
+            'service_last_modified_by': self.service_last_modified_by,
+            'service_last_modified_at': self.service_last_modified_at
+        }
 
     @staticmethod
     def get_available_services(logger) -> HTTPResponse:
-        if logger is None:
-            logger = getLogger(__name__)
-        
         service_id = 'service_id'
         service_name = 'service_name'
         service_price = 'service_price'
@@ -168,3 +177,26 @@ class ServiceView(db.Model):
             raise NoResultFound
 
         return rows
+
+    @staticmethod
+    def get_services(reservation_id: int, logger) -> HTTPResponse:
+        try:
+            rows = db.session.query(ServiceView).filter(
+              ServiceView.service_reservation_id == reservation_id
+            ).all()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if rows is None:
+            raise NoResultFound
+          
+        return (
+            Response.create_to_dict(
+                DatabaseResponseStatus.OK.get_value(),
+                rows,
+                DatabaseResponseStatus.OK.get_description()
+            ),
+            HTTPStatus.OK
+        )

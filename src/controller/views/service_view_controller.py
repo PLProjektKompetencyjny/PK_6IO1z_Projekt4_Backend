@@ -1,7 +1,10 @@
 from flask import request
 from abc import ABC
 from logging import getLogger
+from http import HTTPStatus
 
+from src.controller.types.response import Response
+from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.model.views.service_view import ServiceView
 from src.controller.views.view_controller import ViewController
 from src.utils.utils import get_params
@@ -18,6 +21,11 @@ class ServiceViewController(ViewController, ABC):
 
         if len(params.items()) == 0:
             return ServiceView.get_available_services(self.logger)
+          
+        service_reservation_id = params.get('service_reservation_id')
+        
+        if service_reservation_id is not None:
+            return ServiceView.get_services(service_reservation_id, self.logger)
 
         return self.get_rows(ServiceView, self.logger)
 
