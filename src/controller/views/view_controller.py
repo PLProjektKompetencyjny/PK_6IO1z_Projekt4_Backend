@@ -91,9 +91,8 @@ class ViewController(ABC, MethodView):
                 HTTPStatus.OK,
             )
 
-        logger.info(
-            f"Found [{row_count}] rows in [{model.__tablename__}] with filters [{filters}]"
-        )
+        logger.info(f"Found [{row_count}] rows in [{model.__tablename__}] with filters [{filters}]")
+
         return (
             Response.create(
                 DatabaseResponseStatus.OK.get_value(),

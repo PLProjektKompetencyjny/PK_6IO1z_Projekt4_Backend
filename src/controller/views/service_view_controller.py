@@ -18,11 +18,6 @@ class ServiceViewController(ViewController, ABC):
 
         if len(params.items()) == 0:
             return ServiceView.get_available_services(self.logger)
-          
-        service_reservation_id = params.get('service_reservation_id')
-        
-        if service_reservation_id is not None:
-            return ServiceView.get_services(service_reservation_id, self.logger)
 
         return self.get_rows(ServiceView, self.logger)
 
