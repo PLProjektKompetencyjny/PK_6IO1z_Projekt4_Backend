@@ -60,3 +60,4 @@ vine==5.1.0
 wcwidth==0.2.13
 Werkzeug==3.0.1
 docxtpl==0.16.8
+stripe==10.1.0
