@@ -1,10 +1,7 @@
 from flask import request
 from abc import ABC
 from logging import getLogger
-from http import HTTPStatus
 
-from src.controller.types.response import Response
-from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.model.views.service_view import ServiceView
 from src.controller.views.view_controller import ViewController
 from src.utils.utils import get_params
