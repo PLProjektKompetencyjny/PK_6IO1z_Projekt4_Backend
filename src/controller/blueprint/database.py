@@ -33,4 +33,4 @@ database.add_url_rule('/admin/room_type', view_func=RoomTypeMgmtController.as_vi
 database.add_url_rule('/admin/room', view_func=RoomMgmtController.as_view('room'), methods=['GET', 'POST', 'PUT'])
 
 database.add_url_rule('/admin/service', view_func=ServiceMgmtController.as_view('service'),
-                      methods=['GET', 'POST', 'PUT'])
+                      methods=['GET', 'POST', 'PUT', 'DELETE'])

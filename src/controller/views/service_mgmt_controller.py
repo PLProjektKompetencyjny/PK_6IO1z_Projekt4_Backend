@@ -45,4 +45,17 @@ class ServiceMgmtController(ViewController, ABC):
         )
 
     def delete(self):
-        pass
+        excluded_columns = [
+            'name',
+            'unit_price',
+            'last_modified_by',
+            'last_modified_at'
+        ]
+
+        params = get_params(request.form, ServiceMgmt, excluded_columns)
+
+        self.logger.info(f"New DELETE request with params: {params}")
+
+        return ServiceMgmt.delete_service(
+            **params
+        )

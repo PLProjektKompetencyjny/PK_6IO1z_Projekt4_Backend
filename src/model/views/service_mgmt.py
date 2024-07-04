@@ -66,3 +66,16 @@ class ServiceMgmt(db.Model):
         )
 
         return DBHandler.run_sql_query(sql)
+
+    @staticmethod
+    def delete_service(id: int) -> HTTPResponse:
+        sql = (
+            f"""
+            DELETE FROM
+                service_mgmt
+            WHERE
+                id = {id} 
+            """
+        )
+
+        return DBHandler.run_sql_query(sql)
