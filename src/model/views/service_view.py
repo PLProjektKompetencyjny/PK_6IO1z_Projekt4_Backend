@@ -121,11 +121,13 @@ class ServiceView(db.Model):
                 {service_reservation_id}, 
                 {service_id}, 
                 {service_quantity}
-            )
+            );
+            
+            SELECT MAX(service_id) FROM service_view;
             """
         )
 
-        return DBHandler.run_sql_query(sql)
+        return DBHandler.run_sql_query_scalar(sql, 'service_id')
 
     @staticmethod
     def update_service(service_id: int,
