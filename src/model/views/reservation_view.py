@@ -10,6 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from src.model.views.invoice_view import InvoiceView
 from src.model.views.room_view import RoomView
 
+from flask import request
 
 @dataclass
 class ReservationView(db.Model):
@@ -150,6 +151,23 @@ class ReservationView(db.Model):
             raise NoResultFound
 
         return customer_id
+
+    @staticmethod
+    def get_non_paid_reservations(logger):
+        try:
+            reservations = db.session.query(
+                ReservationView.reservation_id.label('reservation_id'),
+                ReservationView.reservation_status_id.label('reservation_status_id')
+            ).filter(ReservationView.reservation_status_id != 3).group_by(
+                ReservationView.reservation_id,
+                ReservationView.reservation_status_id
+            ).all()
+            return reservations
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
 
     @staticmethod
     def get_details_for_invoice_about_reservation(reservation_id: id, logger):

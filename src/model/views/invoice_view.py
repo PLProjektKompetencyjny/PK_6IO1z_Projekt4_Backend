@@ -29,6 +29,7 @@ class InvoiceView(db.Model):
     invoice_status_id = db.Column('invoice_status_id', db.Integer)
     invoice_last_modified_by = db.Column('invoice_last_modified_by', db.Integer)
     invoice_last_modified_at = db.Column('invoice_last_modified_at', db.DateTime)
+    invoice_payment_id = db.Column('invoice_payment_id', db.String)
 
     def __repr__(self):
         return (
@@ -41,7 +42,8 @@ class InvoiceView(db.Model):
             f'invoice_price_gross={self.invoice_price_gross},'
             f'invoice_status_id={self.invoice_status_id}, '
             f'invoice_last_modified_by={self.invoice_last_modified_by}, '
-            f'invoice_last_modified_at={self.invoice_last_modified_at})>'
+            f'invoice_last_modified_at={self.invoice_last_modified_at},'
+            f'invoice_payment_id={self.invoice_payment_id})>'
         )
 
     @staticmethod
@@ -148,4 +150,21 @@ class InvoiceView(db.Model):
             raise NoResultFound
 
         return rows
-      
+
+    @staticmethod
+    def get_payment_id(reservation_id: int, logger):
+        try:
+            rows = db.session.query(
+                InvoiceView.invoice_payment_id.label('invoice_payment_id')
+            ).filter(
+                InvoiceView.invoice_reservation_id == reservation_id
+            ).first()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if rows is None:
+            raise NoResultFound
+
+        return rows

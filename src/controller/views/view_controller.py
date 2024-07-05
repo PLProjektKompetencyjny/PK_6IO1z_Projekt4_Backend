@@ -10,6 +10,7 @@ from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.utils.utils import sqlalchemy_error_to_dict
 
+import sys
 
 class ViewController(ABC, MethodView):
     @abstractmethod
