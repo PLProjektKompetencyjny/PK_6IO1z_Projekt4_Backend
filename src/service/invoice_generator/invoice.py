@@ -8,8 +8,6 @@ import re
 from src.model.types.invoice import InvoiceGenerator
 from src.env import INVOICE_DEST_PATH
 
-
-
 def convertDocxToPdf(docx_file_path: str, destination_path: str, timeout=None):
     try:
         args = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', destination_path, docx_file_path]
@@ -36,4 +34,5 @@ def generate(generatorObject: InvoiceGenerator):
         remove(docx_file)
     except FileNotFoundError as e:
         raise e
+      
     return pdf_dest_path
