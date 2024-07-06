@@ -30,7 +30,7 @@ def signUp():
     postal_code = data["customer_postal_code"]
     building_number = data["customer_building_number"]
     street = data["customer_street"]
-    firstname = data["customer_firstname"]
+    name = data["customer_name"]
     surname = data["customer_surname"]
     phone = data["customer_phone"]
 
@@ -42,7 +42,7 @@ def signUp():
         new_customer = CustomerView(
             customer_id=new_user_id,
             customer_nip_number=nip,
-            customer_name=firstname,
+            customer_name=name,
             customer_surname=surname,
             customer_email=email,
             customer_phone=phone,

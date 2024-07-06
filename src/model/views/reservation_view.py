@@ -7,10 +7,6 @@ from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
-from src.model.views.invoice_view import InvoiceView
-from src.model.views.room_view import RoomView
-
-from flask import request
 
 @dataclass
 class ReservationView(db.Model):
@@ -110,8 +106,8 @@ class ReservationView(db.Model):
                 reservation_status_id = {reservation_status_id},
                 room_number_of_adults = {reservation_number_of_adults},
                 room_number_of_children = {reservation_number_of_children},
-                reservation_start_date = '{reservation_start_date.strftime('%d-%m-%Y 15:00:00')}',
-                reservation_end_date = '{reservation_end_date.strftime('%d-%m-%Y 12:00:00')}',
+                reservation_start_date = '{reservation_start_date.strftime('%Y-%m-%d 15:00:00')}',
+                reservation_end_date = '{reservation_end_date.strftime('%Y-%m-%d 12:00:00')}',
                 reservation_room_status_id = {reservation_room_status_id}
             WHERE 
                 reservation_id = {reservation_id}

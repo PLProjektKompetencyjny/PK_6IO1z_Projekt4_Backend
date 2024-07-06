@@ -12,6 +12,7 @@ from src.model.enums.invoice_status import InvoiceStatus
 from src.controller.types.response import Response
 from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 
+
 @dataclass
 class InvoiceView(db.Model):
     __tablename__ = 'invoice_view'
