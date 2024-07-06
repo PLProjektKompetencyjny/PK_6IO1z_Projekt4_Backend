@@ -12,8 +12,6 @@ from src.model.views.room_view import RoomView
 
 from flask import request
 
-#test
-
 @dataclass
 class ReservationView(db.Model):
     __tablename__ = 'reservation_view'

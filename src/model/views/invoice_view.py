@@ -168,3 +168,45 @@ class InvoiceView(db.Model):
             raise NoResultFound
 
         return rows
+
+    @staticmethod
+    def get_gross_price_for_reservation(reservation_id, logger):
+        try:
+            rows = db.session.query(
+                InvoiceView.invoice_price_gross.label('invoice_payment_id')
+            ).filter(
+                InvoiceView.invoice_reservation_id == reservation_id
+            ).first()
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+        if rows is None:
+            raise NoResultFound
+
+        return rows[0]
+
+    @staticmethod
+    def set_invoice_payment_id(reservation_id, payment_id, logger):
+        try:
+            rows = db.session.query(InvoiceView).filter(
+                InvoiceView.invoice_reservation_id == reservation_id
+            ).all()
+
+            if rows is None:
+                return 0
+
+            for invoice_record in rows:
+                invoice_record.invoice_payment_id = payment_id
+                invoice_record.invoice_status_id = 2
+
+            db.session.commit()
+            return len(rows)
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+
+

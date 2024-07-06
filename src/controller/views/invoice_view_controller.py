@@ -5,8 +5,10 @@ from flask import request
 
 from src.model.views.invoice_view import InvoiceView
 from src.controller.views.view_controller import ViewController
+from src.service.payments.payments import get_payment_ids_to_check
 
 from src.utils.utils import getViewFields, get_params
+
 
 
 class InvoiceViewController(ViewController, ABC):
@@ -14,6 +16,11 @@ class InvoiceViewController(ViewController, ABC):
         self.logger = getLogger(__name__)
 
     def get(self):
+        payment_ids_check = request.args.get('get_payment_ids_to_check', type=bool, default=False)
+
+        if payment_ids_check:
+            return get_payment_ids_to_check()
+
         return self.get_rows(InvoiceView, getLogger(__name__))
 
     def post(self):

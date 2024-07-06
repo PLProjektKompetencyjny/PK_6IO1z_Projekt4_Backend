@@ -7,7 +7,7 @@ from flask import request, jsonify
 from src.model.views.reservation_view import ReservationView
 from src.controller.views.view_controller import ViewController
 from src.utils.utils import get_params
-from src.service.payments.payments import get_payment_ids_to_check
+from src.service.payments.payments import generate_payment_link_and_update_invoice
 
 
 class ReservationViewController(ViewController, ABC):
@@ -15,17 +15,11 @@ class ReservationViewController(ViewController, ABC):
         self.logger = getLogger(__name__)
 
     def get(self):
-        get_non_paid_reservations = request.args.get('get_non_paid_reservations', type=bool, default=False)
-        payment_ids_check = request.args.get('get_payment_ids_to_check', type=bool, default=False)
+        payment_link_check = request.args.get('generate_payment_link_and_update_invoice', type=int, default=False)
 
-        if get_non_paid_reservations:
-            non_paid_reservations = ReservationView.get_non_paid_reservations(self.logger)
-            non_paid_reservations = [str(room) for room in non_paid_reservations]
-            return non_paid_reservations
-
-        if payment_ids_check:
-            payment_ids = get_payment_ids_to_check()
-            return payment_ids
+        if generate_payment_link_and_update_invoice:
+            payment_link = generate_payment_link_and_update_invoice(payment_link_check)
+            return payment_link
 
         return self.get_rows(ReservationView, getLogger(__name__))
 
