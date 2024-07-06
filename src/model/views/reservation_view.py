@@ -134,7 +134,7 @@ class ReservationView(db.Model):
 
         return DBHandler.run_sql_query(sql)
 
-    def get_customer_id_from_reservation_id(reservation_id, logger):
+    def get_customer_id_from_reservation_id(reservation_id: int, logger):
         try:
             customer_id = db.session.query(
                 ReservationView.reservation_customer_id
@@ -152,7 +152,7 @@ class ReservationView(db.Model):
         return customer_id
 
     @staticmethod
-    def get_details_for_invoice_about_reservation(reservation_id: id, logger):
+    def get_details_for_invoice_about_reservation(reservation_id: int, logger):
         try:
             rows = db.session.query(
                 ReservationView.reservation_room_id.label('room_id'),

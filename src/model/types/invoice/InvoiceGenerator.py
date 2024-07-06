@@ -12,15 +12,15 @@ from src.env import INVOICE_TEMPLATE_PATH
 logger = getLogger(__name__)
 
 class InvoiceGenerator:
-    def __init__(self, reservation_id, tax):
+    def __init__(self, reservation_id: int, tax: int):
 
         self.tax = tax
         self.tax_decimal = ((100 + self.tax) / 100)
         self.__details = []
         try:
-            self.__reservation = ReservationView.get_details_for_invoice_about_reservation(reservation_id, logger)
             self.__invoice_view_details = InvoiceView.get_invoice_details_for_single_reservation(reservation_id, logger)
-            self.__customer_details =CustomerView.get_customer_details_by_id(reservation_id, logger)
+            self.__customer_id = ReservationView.get_customer_id_from_reservation_id(reservation_id, logger)[0]
+            self.__customer_details = CustomerView.get_customer_details_by_customer_id(self.__customer_id, logger)
             self.__service_details = ServiceView.get_services_by_reservation_id(reservation_id, logger)
             self.__reservation_details = ReservationView.get_details_for_invoice_about_reservation(reservation_id, logger)
             self.__invoice_room_details = InvoiceView.get_rooms_prices_for_reservation(reservation_id, logger)

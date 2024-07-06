@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.utils.utils import db
+from src.controller.db_handler import DBHandler
+from src.utils.utils import db, HTTPResponse
 
 
 @dataclass
@@ -15,7 +16,7 @@ class RoomMgmt(db.Model):
     last_modified_by: int
     last_modified_at: datetime
 
-    id = db.Column('id', db.Integer, primary_key=True)
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     room_type_id = db.Column('room_type_id', db.Integer)
     status_id = db.Column('status_id', db.Integer)
     room_price_gross = db.Column('room_price_gross', db.Float)
@@ -31,3 +32,44 @@ class RoomMgmt(db.Model):
             f'last_modified_by={self.last_modified_by}, '
             f'last_modified_at={self.last_modified_at}>'
         )
+
+    @staticmethod
+    def add_room(room_type_id: int, status_id: int, room_price_gross: float) -> HTTPResponse:
+        sql = (
+            f"""
+            INSERT INTO room_mgmt (
+                id,
+                room_type_id, 
+                status_id, 
+                room_price_gross
+            )
+            VALUES (
+                nextval('room_id_seq'),
+                {room_type_id}, 
+                {status_id}, 
+                {room_price_gross}
+            );
+            
+            SELECT MAX(id) FROM room_mgmt;
+            """
+        )
+
+        return DBHandler.run_sql_query_scalar(sql, 'room_id')
+
+    @staticmethod
+    def update_room(id: int, room_type_id: int, status_id: int, room_price_gross: float) -> HTTPResponse:
+        sql = (
+            f"""
+            UPDATE 
+                room_mgmt
+            SET
+                room_type_id = {room_type_id},
+                status_id = {status_id},
+                room_price_gross = {room_price_gross}
+            WHERE
+                id = {id}
+            
+            """
+        )
+
+        return DBHandler.run_sql_query(sql)

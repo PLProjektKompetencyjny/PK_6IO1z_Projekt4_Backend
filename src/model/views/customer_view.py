@@ -141,7 +141,7 @@ class CustomerView(db.Model):
 
         return DBHandler.run_sql_query(sql)
 
-    def get_customer_details_by_id(customer_id: int, logger):
+    def get_customer_details_by_customer_id(customer_id: int, logger):
         try:
             rows = (db.session.query(
                 CustomerView
