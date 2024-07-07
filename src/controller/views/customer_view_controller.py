@@ -1,6 +1,7 @@
 from abc import ABC
 from logging import getLogger
 from flask import request
+from flask_jwt_extended import jwt_required
 
 from src.model.views.customer_view import CustomerView
 from src.controller.views.view_controller import ViewController
@@ -15,6 +16,7 @@ class CustomerViewController(ViewController, ABC):
     def get(self):
         return self.get_rows(CustomerView, getLogger(__name__))
 
+    @jwt_required()
     def post(self):
         excluded_columns = ['customer_last_modified_at', 'customer_id']
         params = get_params(request.form, CustomerView, excluded_columns)
@@ -23,6 +25,7 @@ class CustomerViewController(ViewController, ABC):
 
         return CustomerView.add_customer(**params)
 
+    @jwt_required()
     def put(self):
         excluded_columns = ['customer_last_modified_at']
         params = get_params(request.form, CustomerView, excluded_columns)
