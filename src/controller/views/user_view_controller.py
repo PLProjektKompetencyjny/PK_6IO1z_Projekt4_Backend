@@ -2,6 +2,7 @@ from abc import ABC
 from logging import getLogger
 
 from flask import request
+from flask_jwt_extended import jwt_required
 
 from src.model.views.user_view import UserView
 from src.controller.views.view_controller import ViewController
@@ -11,9 +12,11 @@ class UserViewController(ViewController, ABC):
     def __init__(self):
         self.logger = getLogger(__name__)
 
+    @jwt_required()
     def get(self):
         return self.get_rows(UserView, getLogger(__name__))
 
+    @jwt_required()
     def post(self):
         params = {
             'login': str(request.form['login']),
@@ -29,6 +32,7 @@ class UserViewController(ViewController, ABC):
             **params
         )
 
+    @jwt_required()
     def put(self):
         params = {
             'login': str(request.form['login']),

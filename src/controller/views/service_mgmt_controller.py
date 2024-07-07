@@ -2,6 +2,7 @@ from abc import ABC
 from logging import getLogger
 
 from flask import request
+from flask_jwt_extended import jwt_required
 
 from src.model.views.service_mgmt import ServiceMgmt
 from src.controller.views.view_controller import ViewController
@@ -12,9 +13,11 @@ class ServiceMgmtController(ViewController, ABC):
     def __init__(self):
         self.logger = getLogger(__name__)
 
+    @jwt_required()
     def get(self):
         return self.get_rows(ServiceMgmt, getLogger(__name__))
 
+    @jwt_required()
     def post(self):
         excluded_columns = [
             'id',
@@ -30,6 +33,7 @@ class ServiceMgmtController(ViewController, ABC):
             **params
         )
 
+    @jwt_required()
     def put(self):
         excluded_columns = [
             'last_modified_by',
@@ -44,6 +48,7 @@ class ServiceMgmtController(ViewController, ABC):
             **params
         )
 
+    @jwt_required()
     def delete(self):
         excluded_columns = [
             'name',
