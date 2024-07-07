@@ -17,7 +17,7 @@ def generate_payment_link_and_update_invoice(reservation_id: int):
     amount = 0  # in pennies
     amount_in_usd = InvoiceView.get_gross_price_for_reservation(reservation_id, logger)
     amount = amount_in_usd*100
-    amount_with_tax = amount*1.23  # tax is 8%, amount_with_tax must be in pennies
+    amount_with_tax = amount*1.23  # tax is 23%, amount_with_tax must be in pennies
 
     try:
         session = stripe.checkout.Session.create(

@@ -4,6 +4,7 @@ from sys import argv
 from unittest import TestLoader, TextTestRunner
 
 from src import create_app
+from src.service.scheduler.scheduler import setup_scheduler_for_payments
 
 
 class Manager:
@@ -13,6 +14,7 @@ class Manager:
     def run(self):
         self.app.app_context().push()
         self.app.run(threaded=True)
+        setup_scheduler_for_payments()  # i dont know if this belongs here
 
     @staticmethod
     def test():
