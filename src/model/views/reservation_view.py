@@ -157,6 +157,9 @@ class ReservationView(db.Model):
             ).filter(ReservationView.reservation_status_id != 3).group_by(
                 ReservationView.reservation_id,
                 ReservationView.reservation_status_id
+            ).group_by(
+                ReservationView.reservation_id,
+                ReservationView.reservation_status_id
             ).all()
             return reservations
 
@@ -186,3 +189,17 @@ class ReservationView(db.Model):
             raise NoResultFound
 
         return rows
+
+    @staticmethod
+    def set_reservation_as_paid(reservation_id: id):
+        sql = (
+            f"""
+                    UPDATE reservation_view
+                    SET 
+                        reservation_status_id = 3
+                    WHERE 
+                        reservation_id = {reservation_id};
+                    """
+        )
+
+        return DBHandler.run_sql_query(sql)

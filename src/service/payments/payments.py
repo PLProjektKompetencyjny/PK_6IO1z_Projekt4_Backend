@@ -1,14 +1,14 @@
+import os
 import stripe
-import sys
 
 from logging import getLogger
 from src.model.views.invoice_view import InvoiceView
 from src.model.views.reservation_view import ReservationView
 from sqlalchemy.exc import SQLAlchemyError
-
 from src.utils.utils import sqlalchemy_error_to_dict
+from src.env import STRIPE_KEY
 
-stripe.api_key = "sk_test_51PYAfPRrnWZoSf4Vf5sEUCEys1olebpof755PM5QiOfAzDuR75HwRfm3Bc6m0NAiORgYTepykvsQHsdTr4kWYtXV00vi0jFSXp"
+stripe.api_key = STRIPE_KEY
 
 logger = getLogger(__name__)
 
@@ -17,7 +17,7 @@ def generate_payment_link_and_update_invoice(reservation_id: int):
     amount = 0  # in pennies
     amount_in_usd = InvoiceView.get_gross_price_for_reservation(reservation_id, logger)
     amount = amount_in_usd*100
-    amount_with_tax = amount*1.23  # tax is 23%, amount_with_tax must be in pennies
+    amount_with_tax = amount*1.08  # tax is 8%, amount_with_tax must be in pennies
 
     try:
         session = stripe.checkout.Session.create(
@@ -56,3 +56,9 @@ def get_payment_ids_to_check():
     return payment_ids_to_check
 
 
+def get_payment_status(payment_id):
+    try:
+        session = stripe.checkout.Session.retrieve(payment_id)
+        return session['payment_status']
+    except stripe.error.StripeError as e:
+        return None

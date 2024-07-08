@@ -1,7 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
-
-from http import HTTPStatus
 
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,7 +6,6 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from src.controller.db_handler import DBHandler
 from src.model.enums.invoice_status import InvoiceStatus
-from src.controller.types.response import Response
 from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 
 
@@ -160,15 +156,13 @@ class InvoiceView(db.Model):
             ).filter(
                 InvoiceView.invoice_reservation_id == reservation_id
             ).first()
-        except SQLAlchemyError as e:
-            json_data_error = sqlalchemy_error_to_dict(e)
-            logger.error(json_data_error)
-            raise e
+        except SQLAlchemyError:
+            return 0
 
         if rows is None:
-            raise NoResultFound
+            return 0
 
-        return rows
+        return rows[0]
 
     @staticmethod
     def get_gross_price_for_reservation(reservation_id, logger):

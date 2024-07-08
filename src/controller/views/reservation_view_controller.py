@@ -1,7 +1,7 @@
 from abc import ABC
 from logging import getLogger
 
-from flask import request, jsonify
+from flask import request
 
 from src.model.views.invoice_view import InvoiceView
 from src.model.views.reservation_view import ReservationView

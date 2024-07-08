@@ -38,6 +38,8 @@ sudo mkdir /var/log/flask-app/
 sudo chmod 777 /var/log/flask-app/
 ```
 
+Należy również ustawić poprawny klucz API płatności STRIPE w pliku `/src/env.py`
+
 Aby uruchomić aplikację, wykonaj następujące polecenia:
 
 ```bash
