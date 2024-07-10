@@ -52,7 +52,7 @@ def generate_invoice():
         logger.error(f'No token passed to endpoint. It is required to access this endpoint.')
         return Response.create(HTTPStatus.FORBIDDEN, HTTPStatus.FORBIDDEN.phrase,f'No token passed to endpoint. It is required to access this endpoint.')
     try:
-        client_id_reservation = ReservationView.get_customer_id_from_reservation_id(reservation_id, logger)
+        client_id_reservation = ReservationView.get_customer_id_from_reservation_id(reservation_id, logger)[0]
     except sqlalchemy.orm.exc.NoResultFound:
         logger.error(f'No such reservation id: {reservation_id}')
         return Response.create(HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR.phrase, f'No such reservation id: {reservation_id}')

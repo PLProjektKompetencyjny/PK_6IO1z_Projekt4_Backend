@@ -1,17 +1,11 @@
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import func
-from celery.beat import Service
-from flask import request
-
 from dataclasses import dataclass
-from datetime import datetime
-
 from http import HTTPStatus
+
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 
 from src.utils.utils import db, HTTPResponse
 from src.controller.db_handler import DBHandler
-
 from src.controller.types.response import Response
 from src.controller.enums.database_response_status import DatabaseResponseStatus
 from src.utils.utils import sqlalchemy_error_to_dict
@@ -20,6 +14,15 @@ from src.utils.utils import sqlalchemy_error_to_dict
 @dataclass
 class ServiceView(db.Model):
     __tablename__ = 'service_view'
+
+    service_id: int
+    service_name: str
+    service_price: float
+    service_price_total: float
+    service_reservation_id: int
+    service_quantity: float
+    service_last_modified_by: str
+    service_last_modified_at: str
 
     service_id = db.Column('service_id', db.Integer, primary_key=True)
     service_name = db.Column('service_name', db.String)
@@ -41,7 +44,7 @@ class ServiceView(db.Model):
             f'service_last_modified_by={self.service_last_modified_by}, '
             f'service_last_modified_at={self.service_last_modified_at})>'
         )
-        
+
     def to_dict(self):
         return {
             'service_id': self.service_id,
@@ -121,11 +124,13 @@ class ServiceView(db.Model):
                 {service_reservation_id}, 
                 {service_id}, 
                 {service_quantity}
-            )
+            );
+            
+            SELECT MAX(service_id) FROM service_view;
             """
         )
 
-        return DBHandler.run_sql_query(sql)
+        return DBHandler.run_sql_query_scalar(sql, 'service_id')
 
     @staticmethod
     def update_service(service_id: int,
@@ -177,26 +182,3 @@ class ServiceView(db.Model):
             raise NoResultFound
 
         return rows
-
-    @staticmethod
-    def get_services(reservation_id: int, logger) -> HTTPResponse:
-        try:
-            rows = db.session.query(ServiceView).filter(
-              ServiceView.service_reservation_id == reservation_id
-            ).all()
-        except SQLAlchemyError as e:
-            json_data_error = sqlalchemy_error_to_dict(e)
-            logger.error(json_data_error)
-            raise e
-
-        if rows is None:
-            raise NoResultFound
-          
-        return (
-            Response.create_to_dict(
-                DatabaseResponseStatus.OK.get_value(),
-                rows,
-                DatabaseResponseStatus.OK.get_description()
-            ),
-            HTTPStatus.OK
-        )

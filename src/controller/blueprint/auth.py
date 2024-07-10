@@ -57,6 +57,7 @@ def signUp():
         db.session.commit()
 
         payload = {
+            "user_is_admin": False,
             "user_id": new_user_id,
             "email": email,
             "exp": datetime.utcnow() + timedelta(minutes=60),  # Valid for 60 mins

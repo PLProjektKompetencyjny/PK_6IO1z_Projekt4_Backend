@@ -2,6 +2,7 @@ from abc import ABC
 from logging import getLogger
 
 from flask import request
+from flask_jwt_extended import jwt_required
 
 from src.model.views.invoice_view import InvoiceView
 from src.model.views.reservation_view import ReservationView
@@ -14,9 +15,11 @@ class ReservationViewController(ViewController, ABC):
     def __init__(self):
         self.logger = getLogger(__name__)
 
+    @jwt_required()
     def get(self):
         return self.get_rows(ReservationView, getLogger(__name__))
 
+    @jwt_required()
     def post(self):
         excluded_columns = [
             'reservation_id',
@@ -33,6 +36,7 @@ class ReservationViewController(ViewController, ABC):
             **params
         )
 
+    @jwt_required()
     def put(self):
         excluded_columns = [
             'reservation_customer_id',
@@ -49,6 +53,7 @@ class ReservationViewController(ViewController, ABC):
 
         return payment_link
 
+    @jwt_required()
     def delete(self):
         excluded_columns = [
             'reservation_customer_id',

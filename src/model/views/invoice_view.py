@@ -13,9 +13,17 @@ from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 class InvoiceView(db.Model):
     __tablename__ = 'invoice_view'
     
-    invoice_id = db.Column('invoice_id', db.Integer, primary_key=True, autoincrement=True)
-    invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer, primary_key=True)
-    invoice_room_id = db.Column('invoice_room_id', db.Integer, primary_key=True, autoincrement=True)
+    invoice_id: int
+    invoice_reservation_id: int
+    invoice_room_id: int
+    invoice_room_price_gross: int
+    invoice_date: datetime
+    invoice_price_gross: int
+    invoice_is_paid: int
+    invoice_status_id: int
+    invoice_last_modified_by: int
+    invoice_last_modified_at: datetime
+    
     invoice_id = db.Column('invoice_id', db.Integer, primary_key=True)
     invoice_reservation_id = db.Column('invoice_reservation_id', db.Integer)
     invoice_room_id = db.Column('invoice_room_id', db.Integer, primary_key=True)

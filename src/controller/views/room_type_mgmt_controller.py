@@ -2,6 +2,7 @@ from abc import ABC
 from logging import getLogger
 
 from flask import request
+from flask_jwt_extended import jwt_required
 
 from src.model.views.room_type_mgmt import RoomTypeMgmt
 from src.controller.views.view_controller import ViewController
@@ -12,9 +13,11 @@ class RoomTypeMgmtController(ViewController, ABC):
     def __init__(self):
         self.logger = getLogger(__name__)
 
+    @jwt_required()
     def get(self):
         return self.get_rows(RoomTypeMgmt, getLogger(__name__))
 
+    @jwt_required()
     def post(self):
         excluded_columns = [
             'id',
@@ -31,6 +34,7 @@ class RoomTypeMgmtController(ViewController, ABC):
 
         return result
 
+    @jwt_required()
     def put(self):
         excluded_columns = [
             'last_modified_at',
@@ -44,5 +48,6 @@ class RoomTypeMgmtController(ViewController, ABC):
             **params
         )
 
+    @jwt_required()
     def delete(self):
         pass
