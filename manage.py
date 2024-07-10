@@ -6,6 +6,7 @@ from unittest import TestLoader, TextTestRunner
 from src import create_app
 
 
+
 class Manager:
     def __init__(self):
         self.app = create_app(getenv('ENVIRONMENT') or 'dev')

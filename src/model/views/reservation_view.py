@@ -7,9 +7,6 @@ from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
-from src.model.views.invoice_view import InvoiceView
-from src.model.views.room_view import RoomView
-
 
 @dataclass
 class ReservationView(db.Model):
@@ -109,8 +106,8 @@ class ReservationView(db.Model):
                 reservation_status_id = {reservation_status_id},
                 room_number_of_adults = {reservation_number_of_adults},
                 room_number_of_children = {reservation_number_of_children},
-                reservation_start_date = '{reservation_start_date.strftime('%d-%m-%Y 15:00:00')}',
-                reservation_end_date = '{reservation_end_date.strftime('%d-%m-%Y 12:00:00')}',
+                reservation_start_date = '{reservation_start_date.strftime('%Y-%m-%d 15:00:00')}',
+                reservation_end_date = '{reservation_end_date.strftime('%Y-%m-%d 12:00:00')}',
                 reservation_room_status_id = {reservation_room_status_id}
             WHERE 
                 reservation_id = {reservation_id}
@@ -152,6 +149,26 @@ class ReservationView(db.Model):
         return customer_id
 
     @staticmethod
+    def get_non_paid_reservations(logger):
+        try:
+            reservations = db.session.query(
+                ReservationView.reservation_id.label('reservation_id'),
+                ReservationView.reservation_status_id.label('reservation_status_id')
+            ).filter(ReservationView.reservation_status_id != 3).group_by(
+                ReservationView.reservation_id,
+                ReservationView.reservation_status_id
+            ).group_by(
+                ReservationView.reservation_id,
+                ReservationView.reservation_status_id
+            ).all()
+            return reservations
+
+        except SQLAlchemyError as e:
+            json_data_error = sqlalchemy_error_to_dict(e)
+            logger.error(json_data_error)
+            raise e
+
+    @staticmethod
     def get_details_for_invoice_about_reservation(reservation_id: int, logger):
         try:
             rows = db.session.query(
@@ -172,3 +189,17 @@ class ReservationView(db.Model):
             raise NoResultFound
 
         return rows
+
+    @staticmethod
+    def set_reservation_as_paid(reservation_id: id):
+        sql = (
+            f"""
+                    UPDATE reservation_view
+                    SET 
+                        reservation_status_id = 3
+                    WHERE 
+                        reservation_id = {reservation_id};
+                    """
+        )
+
+        return DBHandler.run_sql_query(sql)

@@ -11,6 +11,7 @@ ENV DB_Username="tn_api_write"
 ENV DB_Password="cba"
 ENV INVOICE_DEST_PATH="/usr/INVOICES"
 ENV INVOICE_TEMPLATE_PATH="/App/src/model/templates/INVOICE/invoice_template.docx"
+ENV STRIPE_KEY="sk_test_51PYAfPRrnWZoSf4Vf5sEUCEys1olebpof755PM5QiOfAzDuR75HwRfm3Bc6m0NAiORgYTepykvsQHsdTr4kWYtXV00vi0jFSXp"
 
 # install ubuntu pakages
 RUN apt update

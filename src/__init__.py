@@ -8,7 +8,10 @@ from src.controller.blueprint.auth import auth
 from src.controller.blueprint.invoice import invoice
 from .utils.utils import db, jwt
 
+from src.service.scheduler.scheduler import setup_scheduler_for_payments
+
 from flask_cors import CORS
+import os
 
 def create_app(config_name):
     app = Flask('TravelNest')
@@ -24,5 +27,9 @@ def create_app(config_name):
     jwt.init_app(app)
     
     CORS(app)
+
+    if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        with app.app_context():
+            setup_scheduler_for_payments(app)
 
     return app

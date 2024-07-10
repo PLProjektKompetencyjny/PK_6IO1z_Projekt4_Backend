@@ -1,13 +1,14 @@
-from datetime import datetime
 from abc import ABC
 from logging import getLogger
 
 from flask import request
 from flask_jwt_extended import jwt_required
 
+from src.model.views.invoice_view import InvoiceView
 from src.model.views.reservation_view import ReservationView
 from src.controller.views.view_controller import ViewController
 from src.utils.utils import get_params
+from src.service.payments.payments import generate_payment_link_and_update_invoice
 
 
 class ReservationViewController(ViewController, ABC):
@@ -42,13 +43,15 @@ class ReservationViewController(ViewController, ABC):
             'reservation_last_modified_by',
             'reservation_last_modified_at'
         ]
+
         params = get_params(request.form, ReservationView, excluded_columns)
+        reservation_id = params['reservation_id']
+        InvoiceView.add_invoice(reservation_id)
+        payment_link = generate_payment_link_and_update_invoice(reservation_id)
+        self.logger.info(f'New PUT request with params: {params}, Payment link is {payment_link}')
+        ReservationView.update_reservation(**params)
 
-        self.logger.info(f'New PUT request with params: {params}')
-
-        return ReservationView.update_reservation(
-            **params
-        )
+        return payment_link
 
     @jwt_required()
     def delete(self):
