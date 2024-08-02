@@ -1,3 +1,5 @@
+from re import match
+
 from flask import request, Blueprint
 from flask import current_app as app
 
@@ -26,6 +28,18 @@ def SelectMessageCreator(message_type, data_id, recipients):
     return mail_types[message_type](data_id=data_id, recipients=recipients)
 
 
+def CheckEMailAddress(address: str):
+    if not address:
+        return False
+
+    regex = r'^[A-Za-z0-9]+[.-_]*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$'
+
+    if match(regex, address):
+        return True
+
+    return False
+
+
 def sendmail():
     if request.method != 'POST':
         app.logger.warning(f'This endpoint supports only POST operation')
@@ -39,15 +53,14 @@ def sendmail():
         app.logger.warning(f'data_id must be greater than 0. Passed Value: {data_id}')
         return HTTPStatus.BAD_REQUEST.phrase, HTTPStatus.BAD_REQUEST
 
-    if not address or address.find('@') == -1:
+    if CheckEMailAddress(address) is False:
         app.logger.warning(f'Check email address passed in request. Passed Value: {address}')
         return HTTPStatus.BAD_REQUEST.phrase, HTTPStatus.BAD_REQUEST
 
     recipients = address.split(',')
 
     try:
-        messageCreator = SelectMessageCreator(message_type, data_id, recipients)
-        message = messageCreator.create_message()
+        message = SelectMessageCreator(message_type, data_id, recipients).create_message()
     except ValueError as e:
         app.logger.error(f'''Problem occurred during message generation: {str(e)}.
                              passed data: data_id: {data_id}, address: {address}, message_type: {message_type}''')
