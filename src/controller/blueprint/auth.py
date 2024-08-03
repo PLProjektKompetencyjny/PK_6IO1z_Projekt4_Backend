@@ -41,6 +41,48 @@ def activate():
     return DBHandler.run_sql_query(sql)
 
 
+@auth.route("auth/password/reset", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    email = data.get("email", "")
+
+    sql = (
+        f"""
+                UPDATE user_view
+                SET 
+                    user_reset_password_code = gen_random_uuid()
+                WHERE 
+                    user_e_mail = '{email}';
+                    
+                SELECT 
+                    user_reset_password_code 
+                FROM 
+                    user_view
+                WHERE 
+                    user_e_mail = '{email}';
+            """
+    )
+
+    result = DBHandler.run_sql_query_scalar(sql, 'user_reset_password_code')
+
+    if result[1] != HTTPStatus.OK:
+        return result
+
+    user = db.session.query(UserView).filter(UserView.user_e_mail == email).first()
+
+    params = {
+        'data_id': str(user.user_reset_password_code),
+        'address': email,
+        'message_type': 'ResetPassword'
+    }
+
+    url = 'http://localhost:5000/api/mailing/sendmail'
+
+    result = requests.post(url, params=params)
+
+    return result.text, result.status_code
+
+
 @auth.route("auth/sign-up", methods=["POST"])
 def signUp():
     data = request.get_json()
