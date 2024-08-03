@@ -92,7 +92,22 @@ def change_password():
 
     user = db.session.query(UserView).filter(UserView.user_reset_password_code == user_reset_password_code).first()
 
-    return UserView.update_user_password(user.user_e_mail, new_password, old_password)
+    result = UserView.update_user_password(user.user_e_mail, new_password, old_password)
+
+    if result[1] != HTTPStatus.OK:
+        return result
+
+    sql = (
+        f"""
+                UPDATE user_view
+                SET
+                    user_reset_password_code = NULL
+                WHERE
+                    user_id = {user.user_id};    
+            """
+    )
+
+    return DBHandler.run_sql_query(sql)
 
 
 @auth.route("auth/sign-up", methods=["POST"])
