@@ -40,16 +40,23 @@ def CheckEMailAddress(address: str):
     return False
 
 
+def CheckDataId(data_id: str):
+    if not data_id:
+        return False
+
+    return int(data_id) > 0
+
+
 def sendmail():
     if request.method != 'POST':
         app.logger.warning(f'This endpoint supports only POST operation')
         return HTTPStatus.BAD_REQUEST.phrase, HTTPStatus.BAD_REQUEST
 
-    data_id = request.args.get('data_id', type=int)
+    data_id = request.args.get('data_id')
     address = request.args.get('address', type=str, default='')
     message_type = request.args.get('message_type', type=str)
 
-    if data_id < 0:
+    if CheckDataId(data_id) is False:
         app.logger.warning(f'data_id must be greater than 0. Passed Value: {data_id}')
         return HTTPStatus.BAD_REQUEST.phrase, HTTPStatus.BAD_REQUEST
 
