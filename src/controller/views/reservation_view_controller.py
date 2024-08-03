@@ -1,9 +1,14 @@
+import requests
+
 from abc import ABC
+from http import HTTPStatus
 from logging import getLogger
 
 from flask import request
 from flask_jwt_extended import jwt_required
 
+from src.controller.types.response import Response
+from src.model.views.customer_view import CustomerView
 from src.model.views.invoice_view import InvoiceView
 from src.model.views.reservation_view import ReservationView
 from src.controller.views.view_controller import ViewController
@@ -32,9 +37,31 @@ class ReservationViewController(ViewController, ABC):
 
         self.logger.info(f"New POST request with params: {params}")
 
-        return ReservationView.add_reservation(
+        reservation_result = ReservationView.add_reservation(
             **params
         )
+
+        if reservation_result[1] != HTTPStatus.OK:
+            return reservation_result
+
+        reservation_id = reservation_result[0].json['data'][0]['reservation_id']
+
+        params = {
+            'data_id': reservation_id,
+            'address': CustomerView.get_customer_email(params['reservation_customer_id']),
+            'message_type': 'Reservation'
+        }
+
+        mailing_result = requests.post('http://localhost:5000/api/mailing/sendmail', params=params)
+
+        if mailing_result != HTTPStatus.OK:
+            return (Response.create(
+                HTTPStatus.INTERNAL_SERVER_ERROR.value,
+                [],
+                f"Failed to send email to customer with confirmation of reservation id: {reservation_id}"),
+                    HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return reservation_result
 
     @jwt_required()
     def put(self):
