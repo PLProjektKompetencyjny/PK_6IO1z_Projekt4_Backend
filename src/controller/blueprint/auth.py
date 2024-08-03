@@ -83,6 +83,18 @@ def reset_password():
     return result.text, result.status_code
 
 
+@auth.route("auth/password/change", methods=["POST"])
+def change_password():
+    data = request.get_json()
+    user_reset_password_code = data.get("user_reset_password_code", "")
+    new_password = data.get("new_password", "")
+    old_password = data.get("old_password", "")
+
+    user = db.session.query(UserView).filter(UserView.user_reset_password_code == user_reset_password_code).first()
+
+    return UserView.update_user_password(user.user_e_mail, new_password, old_password)
+
+
 @auth.route("auth/sign-up", methods=["POST"])
 def signUp():
     data = request.get_json()
