@@ -2,7 +2,9 @@ from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+from src.model.types.invoice.InvoiceGenerator import InvoiceGenerator
 from src.model.types.mail.BasicMail import BasicMail
+from src.service.invoice_generator.invoice import generate
 
 
 class InvoiceMessageMail(BasicMail):
@@ -17,9 +19,12 @@ class InvoiceMessageMail(BasicMail):
         self.message = MIMEMultipart()
         html_message_body = MIMEText(html_message, 'html')
 
+        invoice_generator = InvoiceGenerator(self.dataID)
+        invoice_pdf = generate(invoice_generator)
+
         self.message.attach(html_message_body)
-        '''
-        with open('src/templates/HTML_EMAIL/images/Minutka_symulacjaRadia.pdf', "rb") as file:
+        f'''
+        with open('{invoice_pdf}', "rb") as file:
             attachment = MIMEApplication(file.read(), _subtype='pdf')
         attachment.add_header('Content-Disposition', 'attachment', filename='Minutka_symulacjaRadia')
         self.message.attach(attachment)

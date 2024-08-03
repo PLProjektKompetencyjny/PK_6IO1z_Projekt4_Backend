@@ -12,7 +12,7 @@ from src.env import INVOICE_TEMPLATE_PATH
 logger = getLogger(__name__)
 
 class InvoiceGenerator:
-    def __init__(self, reservation_id: int, tax: int):
+    def __init__(self, reservation_id: int, tax: int = 8):
 
         self.tax = tax
         self.tax_decimal = ((100 + self.tax) / 100)

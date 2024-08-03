@@ -5,7 +5,9 @@ from datetime import datetime
 from http import HTTPStatus
 
 from src.controller.db_handler import DBHandler
+from src.model.types.invoice.InvoiceGenerator import InvoiceGenerator
 from src.model.views.customer_view import CustomerView
+from src.service.invoice_generator.invoice import generate
 from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -212,11 +214,14 @@ class ReservationView(db.Model):
             return result
 
         reservation = db.session.query(ReservationView).filter(ReservationView.reservation_id == reservation_id).first()
+        customer_email = CustomerView.get_customer_email(reservation.reservation_customer_id)
 
         params = {
             'data_id': reservation_id,
-            'address': CustomerView.get_customer_email(reservation.reservation_customer_id),
+            'address': customer_email,
             'message_type': 'Payment'
         }
 
+        requests.post('http://localhost:5000/api/mailing/sendmail', params=params)
+        params['message_type'] = 'Invoice'
         return requests.post('http://localhost:5000/api/mailing/sendmail', params=params)
