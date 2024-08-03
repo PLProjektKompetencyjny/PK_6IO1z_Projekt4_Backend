@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+import requests
+from flask import Blueprint, request, jsonify, redirect, url_for
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from sqlalchemy import func
@@ -8,6 +9,7 @@ import jwt
 from datetime import datetime, timedelta
 from logging import getLogger
 
+from src.controller.db_handler import DBHandler
 from src.model.views.user_view import UserView
 from src.utils.utils import db
 from src.model.views.customer_view import CustomerView
@@ -18,6 +20,25 @@ from src.env import JWT_SECRET_KEY
 
 auth = Blueprint("auth", __name__, url_prefix="/api")
 logger = getLogger(__name__)
+
+
+@auth.route("auth/activate", methods=["POST"])
+def activate():
+    data = request.get_json()
+    user_activation_code = data.get("user_activation_code", "")
+
+    sql = (
+        f"""
+                UPDATE user_view
+                SET 
+                    user_activation_code = NULL,
+                    user_is_active = TRUE
+                WHERE 
+                    user_activation_code = '{user_activation_code}'
+            """
+    )
+
+    return DBHandler.run_sql_query(sql)
 
 
 @auth.route("auth/sign-up", methods=["POST"])
