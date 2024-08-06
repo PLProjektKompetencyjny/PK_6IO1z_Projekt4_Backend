@@ -5,9 +5,7 @@ from datetime import datetime
 from http import HTTPStatus
 
 from src.controller.db_handler import DBHandler
-from src.model.types.invoice.InvoiceGenerator import InvoiceGenerator
 from src.model.views.customer_view import CustomerView
-from src.service.invoice_generator.invoice import generate
 from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 
 from sqlalchemy.exc import SQLAlchemyError

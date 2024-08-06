@@ -24,8 +24,8 @@ def create_app(config_name):
 
     app.register_blueprint(database)
     app.register_blueprint(auth)
-    app.register_blueprint(invoice)
     app.register_blueprint(mailing)
+    app.register_blueprint(invoice)
 
     jwt.init_app(app)
 
