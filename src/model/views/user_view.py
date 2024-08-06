@@ -60,6 +60,15 @@ class UserView(db.Model):
         )
 
     @staticmethod
+    def update_user_password_by_user_reset_password_code(
+                             user_reset_password_code: str,
+                             new_user_password: str,
+                             last_modified_by_id: int = None) -> HTTPResponse:
+        return DBHandler.run_sql_function_scalar(
+            func.update_user_account_password_by_user_reset_password_code, user_reset_password_code, new_user_password, last_modified_by_id
+        )
+
+    @staticmethod
     def authenticate_user(login: str,
                           user_password: str) -> HTTPResponse:
         return DBHandler.run_sql_function_scalar(

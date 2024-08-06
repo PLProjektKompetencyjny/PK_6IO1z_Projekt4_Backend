@@ -88,11 +88,10 @@ def change_password():
     data = request.get_json()
     user_reset_password_code = data.get("user_reset_password_code", "")
     new_password = data.get("new_password", "")
-    old_password = data.get("old_password", "")
 
     user = db.session.query(UserView).filter(UserView.user_reset_password_code == user_reset_password_code).first()
 
-    result = UserView.update_user_password(user.user_e_mail, new_password, old_password)
+    result = UserView.update_user_password_by_user_reset_password_code(user_reset_password_code, new_password)
 
     if result[1] != HTTPStatus.OK:
         return result

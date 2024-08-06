@@ -23,13 +23,13 @@ class InvoiceMessageMail(BasicMail):
         invoice_pdf = generate(invoice_generator)
 
         self.message.attach(html_message_body)
-        f'''
-        with open('{invoice_pdf}', "rb") as file:
+        print(f'invoice_pdf {invoice_pdf}')
+        with open(invoice_pdf, "rb") as file:
             attachment = MIMEApplication(file.read(), _subtype='pdf')
-        attachment.add_header('Content-Disposition', 'attachment', filename='Minutka_symulacjaRadia')
-        self.message.attach(attachment)
-        '''
+            attachment.add_header('Content-Disposition', 'attachment', filename=invoice_pdf[5:])
+            self.message.attach(attachment)
         self.message['Subject'] = f'Your invoice for reservation {self.dataID} landed.'
         self.message['From'] = self.get_email()
         self.message['To'] = ', '.join(self.recipients)
+        
         return self.message

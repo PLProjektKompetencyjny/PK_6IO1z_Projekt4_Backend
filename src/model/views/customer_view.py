@@ -60,8 +60,10 @@ class CustomerView(db.Model):
 
     @staticmethod
     def get_customer_email(customer_id: int):
-        return db.session.query(CustomerView.customer_email).filter(
-            CustomerView.customer_id == customer_id).first()[0]
+        result = db.session.query(CustomerView.customer_email).filter(
+            CustomerView.customer_id == customer_id).first()
+        
+        return result[0]
 
     @staticmethod
     def add_customer(

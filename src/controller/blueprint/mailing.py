@@ -16,7 +16,7 @@ from src.service.mailing.mailingservice import MailingService, MissingPassword, 
 mailing = Blueprint('mailing', __name__, url_prefix='/api')
 
 
-def SelectMessageCreator(message_type, data_id, recipients):
+def SelectMessageCreator(message_type: str, data_id: str, recipients: list[str]):
     mail_types = {
         'Activation': ActivationMessageMail,
         'Invoice': InvoiceMessageMail,
@@ -25,7 +25,7 @@ def SelectMessageCreator(message_type, data_id, recipients):
         'ResetPassword': ResetPasswordMessageMail
     }
 
-    return mail_types[message_type](data_id=data_id, recipients=recipients)
+    return mail_types[message_type](data_id = data_id, recipients = recipients)
 
 
 def CheckEMailAddress(address: str):
@@ -44,7 +44,7 @@ def CheckDataId(data_id: str):
     if not data_id:
         return False
 
-    return int(data_id) > 0
+    return True
 
 
 def sendmail():
@@ -57,7 +57,7 @@ def sendmail():
     message_type = request.args.get('message_type', type=str)
 
     if CheckDataId(data_id) is False:
-        app.logger.warning(f'data_id must be greater than 0. Passed Value: {data_id}')
+        app.logger.warning(f'data_id must be provided. Passed Value: {data_id}')
         return HTTPStatus.BAD_REQUEST.phrase, HTTPStatus.BAD_REQUEST
 
     if CheckEMailAddress(address) is False:
