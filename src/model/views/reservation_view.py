@@ -219,7 +219,10 @@ class ReservationView(db.Model):
             'address': customer_email,
             'message_type': 'Payment'
         }
-
         requests.post('http://localhost:5000/api/mailing/sendmail', params=params)
+        
         params['message_type'] = 'Invoice'
+        requests.post('http://localhost:5000/api/mailing/sendmail', params=params)
+
+        params['message_type'] = 'Reservation'
         return requests.post('http://localhost:5000/api/mailing/sendmail', params=params)

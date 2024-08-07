@@ -14,6 +14,7 @@ from src.model.views.reservation_view import ReservationView
 from src.controller.views.view_controller import ViewController
 from src.utils.utils import get_params
 from src.service.payments.payments import generate_payment_link_and_update_invoice
+from src.model.enums.reservation_status import ReservationStatus
 
 
 class ReservationViewController(ViewController, ABC):
@@ -43,23 +44,6 @@ class ReservationViewController(ViewController, ABC):
 
         if reservation_result[1] != HTTPStatus.OK:
             return reservation_result
-
-        reservation_id = reservation_result[0].json['data'][0]['reservation_id']
-
-        params = {
-            'data_id': reservation_id,
-            'address': CustomerView.get_customer_email(params['reservation_customer_id']),
-            'message_type': 'Reservation'
-        }
-
-        mailing_result = requests.post('http://localhost:5000/api/mailing/sendmail', params=params)
-
-        if mailing_result != HTTPStatus.OK:
-            return (Response.create(
-                HTTPStatus.INTERNAL_SERVER_ERROR.value,
-                [],
-                f"Failed to send email to customer with confirmation of reservation id: {reservation_id}"),
-                    HTTPStatus.INTERNAL_SERVER_ERROR)
 
         return reservation_result
 
