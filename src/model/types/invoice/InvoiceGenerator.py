@@ -36,10 +36,10 @@ class InvoiceGenerator:
         for pos in range(len(self.__reservation_details)):
             self.__details.append([self.__reservation_details[pos].room_id,
                                    f'Adults: {self.__reservation_details[pos].number_of_adults}, children: {self.__reservation_details[pos].number_of_children}',
-                                   self.__reservation_details[pos].duration.days,
+                                   self.__reservation_details[pos].duration.days + 1, # +1 because 1 day reservation equals = 0 days :(
                                    self.__invoice_room_details[pos].invoice_room_price_gross,
                                    self.__invoice_room_details[pos].invoice_room_price_gross *
-                                   self.__reservation_details[pos].duration.days]
+                                   self.__reservation_details[pos].duration.days + 1] # +1 because 1 day reservation equals = 0 days :(
                                   )
 
         for service in self.__service_details:
