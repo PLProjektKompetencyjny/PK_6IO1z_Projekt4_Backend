@@ -37,17 +37,16 @@ class InvoiceGenerator:
             self.__details.append([self.__reservation_details[pos].room_id,
                                    f'Adults: {self.__reservation_details[pos].number_of_adults}, children: {self.__reservation_details[pos].number_of_children}',
                                    self.__reservation_details[pos].duration.days + 1, # +1 because 1 day reservation equals = 0 days :(
-                                   self.__invoice_room_details[pos].invoice_room_price_gross,
-                                   self.__invoice_room_details[pos].invoice_room_price_gross *
-                                   self.__reservation_details[pos].duration.days + 1] # +1 because 1 day reservation equals = 0 days :(
+                                   '%.2f' % round(self.__invoice_room_details[pos].invoice_room_price_gross, 2),
+                                   '%.2f' % round(self.__invoice_room_details[pos].invoice_room_price_gross * (self.__reservation_details[pos].duration.days + 1), 2)] # +1 because 1 day reservation equals = 0 days :(
                                   )
 
         for service in self.__service_details:
             self.__details.append(['',
                                    f'Service: {service.service_name}',
                                    int(service.service_quantity),
-                                   service.service_price,
-                                   service.service_price_total]
+                                   '%.2f' % round(service.service_price, 2),
+                                   '%.2f' % round(service.service_price_total, 2)]
                                   )
 
         self.template_path = INVOICE_TEMPLATE_PATH
@@ -62,9 +61,9 @@ class InvoiceGenerator:
                                'phone': self.__customer_details.customer_phone,
                                'tax': f'{tax}%',
                                'nip': self.__customer_details.customer_nip_number if self.__customer_details.customer_nip_number is not None else '',
-                               'net_total': self.__invoice_view_details.invoice_price_gross,
+                               'net_total': '%.2f' % round(self.__invoice_view_details.invoice_price_gross, 2),
                                'invoice_list': self.__details,
-                               'total': self.__invoice_view_details.invoice_price_gross * self.tax_decimal
+                               'total': '%.2f' % round(self.__invoice_view_details.invoice_price_gross * self.tax_decimal, 2)
                                }
 
     def get_invoice_data(self):
