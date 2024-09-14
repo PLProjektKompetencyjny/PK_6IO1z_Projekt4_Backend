@@ -1,7 +1,11 @@
+import requests
+
 from dataclasses import dataclass
 from datetime import datetime
+from http import HTTPStatus
 
 from src.controller.db_handler import DBHandler
+from src.model.views.customer_view import CustomerView
 from src.utils.utils import db, HTTPResponse, sqlalchemy_error_to_dict
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -202,4 +206,23 @@ class ReservationView(db.Model):
                     """
         )
 
-        return DBHandler.run_sql_query(sql)
+        result = DBHandler.run_sql_query(sql)
+
+        if result[1] != HTTPStatus.OK:
+            return result
+
+        reservation = db.session.query(ReservationView).filter(ReservationView.reservation_id == reservation_id).first()
+        customer_email = CustomerView.get_customer_email(reservation.reservation_customer_id)
+
+        params = {
+            'data_id': reservation_id,
+            'address': customer_email,
+            'message_type': 'Payment'
+        }
+        requests.post('http://localhost:5000/api/mailing/sendmail', params=params)
+        
+        params['message_type'] = 'Invoice'
+        requests.post('http://localhost:5000/api/mailing/sendmail', params=params)
+
+        params['message_type'] = 'Reservation'
+        return requests.post('http://localhost:5000/api/mailing/sendmail', params=params)

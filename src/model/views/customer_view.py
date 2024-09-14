@@ -59,17 +59,24 @@ class CustomerView(db.Model):
         )
 
     @staticmethod
+    def get_customer_email(customer_id: int):
+        result = db.session.query(CustomerView.customer_email).filter(
+            CustomerView.customer_id == customer_id).first()
+        
+        return result[0]
+
+    @staticmethod
     def add_customer(
-        customer_email: str,
-        customer_nip_number: None,
-        customer_name: str,
-        customer_surname: str,
-        customer_phone: str,
-        customer_city: str,
-        customer_postal_code: str,
-        customer_street: str,
-        customer_building_number: str,
-        customer_last_modified_by: None, ) -> HTTPResponse:
+            customer_email: str,
+            customer_nip_number: None,
+            customer_name: str,
+            customer_surname: str,
+            customer_phone: str,
+            customer_city: str,
+            customer_postal_code: str,
+            customer_street: str,
+            customer_building_number: str,
+            customer_last_modified_by: None, ) -> HTTPResponse:
         new_user_id = db.session.query(
             func.insert_user_account(customer_email, '', None)
         ).scalar()

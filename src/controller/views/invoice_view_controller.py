@@ -68,3 +68,4 @@ class InvoiceViewController(ViewController, ABC):
 
     def delete(self):
         pass
+

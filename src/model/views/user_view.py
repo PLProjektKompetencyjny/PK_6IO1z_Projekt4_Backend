@@ -16,6 +16,8 @@ class UserView(db.Model):
     user_name: str
     user_is_active: bool
     user_is_admin: bool
+    user_activation_code: str
+    user_reset_password_code: str
     user_last_modified_by: int
     user_last_modified_at: datetime
 
@@ -24,6 +26,8 @@ class UserView(db.Model):
     user_name = db.Column('user_name', db.String)
     user_is_active = db.Column('user_is_active', db.Boolean)
     user_is_admin = db.Column('user_is_admin', db.Boolean)
+    user_activation_code = db.Column('user_activation_code', db.UUID)
+    user_reset_password_code = db.Column('user_reset_password_code', db.UUID)
     user_last_modified_by = db.Column('user_last_modified_by', db.String)
     user_last_modified_at = db.Column('user_last_modified_at', db.DateTime)
 
@@ -53,6 +57,15 @@ class UserView(db.Model):
                              last_modified_by_id: int = None) -> HTTPResponse:
         return DBHandler.run_sql_function_scalar(
             func.update_user_account_password, login, new_user_password, old_user_password, last_modified_by_id
+        )
+
+    @staticmethod
+    def update_user_password_by_user_reset_password_code(
+                             user_reset_password_code: str,
+                             new_user_password: str,
+                             last_modified_by_id: int = None) -> HTTPResponse:
+        return DBHandler.run_sql_function_scalar(
+            func.update_user_account_password_by_user_reset_password_code, user_reset_password_code, new_user_password, last_modified_by_id
         )
 
     @staticmethod

@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+import requests
+from flask import Blueprint, request, jsonify, redirect, url_for
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from sqlalchemy import func
@@ -8,6 +9,7 @@ import jwt
 from datetime import datetime, timedelta
 from logging import getLogger
 
+from src.controller.db_handler import DBHandler
 from src.model.views.user_view import UserView
 from src.utils.utils import db
 from src.model.views.customer_view import CustomerView
@@ -18,6 +20,93 @@ from src.env import JWT_SECRET_KEY
 
 auth = Blueprint("auth", __name__, url_prefix="/api")
 logger = getLogger(__name__)
+
+
+@auth.route("auth/activate", methods=["POST"])
+def activate():
+    data = request.get_json()
+    user_activation_code = data.get("user_activation_code", "")
+
+    sql = (
+        f"""
+                UPDATE user_view
+                SET 
+                    user_activation_code = NULL,
+                    user_is_active = TRUE
+                WHERE 
+                    user_activation_code = '{user_activation_code}'
+            """
+    )
+
+    return DBHandler.run_sql_query(sql)
+
+
+@auth.route("auth/password/reset", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    email = data.get("email", "")
+
+    sql = (
+        f"""
+                UPDATE user_view
+                SET 
+                    user_reset_password_code = gen_random_uuid()
+                WHERE 
+                    user_e_mail = '{email}';
+                    
+                SELECT 
+                    user_reset_password_code 
+                FROM 
+                    user_view
+                WHERE 
+                    user_e_mail = '{email}';
+            """
+    )
+
+    result = DBHandler.run_sql_query_scalar(sql, 'user_reset_password_code')
+
+    if result[1] != HTTPStatus.OK:
+        return result
+
+    user = db.session.query(UserView).filter(UserView.user_e_mail == email).first()
+
+    params = {
+        'data_id': str(user.user_reset_password_code),
+        'address': email,
+        'message_type': 'ResetPassword'
+    }
+
+    url = 'http://localhost:5000/api/mailing/sendmail'
+
+    result = requests.post(url, params=params)
+
+    return result.text, result.status_code
+
+
+@auth.route("auth/password/change", methods=["POST"])
+def change_password():
+    data = request.get_json()
+    user_reset_password_code = data.get("user_reset_password_code", "")
+    new_password = data.get("new_password", "")
+
+    user = db.session.query(UserView).filter(UserView.user_reset_password_code == user_reset_password_code).first()
+
+    result = UserView.update_user_password_by_user_reset_password_code(user_reset_password_code, new_password)
+
+    if result[1] != HTTPStatus.OK:
+        return result
+
+    sql = (
+        f"""
+                UPDATE user_view
+                SET
+                    user_reset_password_code = NULL
+                WHERE
+                    user_id = {user.user_id};    
+            """
+    )
+
+    return DBHandler.run_sql_query(sql)
 
 
 @auth.route("auth/sign-up", methods=["POST"])
@@ -55,29 +144,20 @@ def signUp():
         )
         db.session.add(new_customer)
         db.session.commit()
+        
+        user = db.session.query(UserView).filter(UserView.user_e_mail == email).first()
 
-        payload = {
-            "user_is_admin": False,
-            "user_id": new_user_id,
-            "email": email,
-            "exp": datetime.utcnow() + timedelta(minutes=60),  # Valid for 60 mins
-            "iat": datetime.utcnow(),
-            "sub": new_user_id,
+        params = {
+            'data_id': str(user.user_activation_code),
+            'address': email,
+            'message_type': 'Activation'
         }
 
-        token = create_access_token(payload)
+        url = 'http://localhost:5000/api/mailing/sendmail'
 
-        response = jsonify(
-            {
-                "auth_schema": "Bearer",
-                "access_token": token,
-                "user_id": new_user_id,
-                "email": email,
-                "is_admin": False,  # Przy rejestracji jest to normalny użytkownik (żaden recepcjonista czy admin)
-            }
-        )
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        return response
+        result = requests.post(url, params=params)
+
+        return result.text, result.status_code
     except SQLAlchemyError as e:
         db.session.rollback()
         json_data_error = sqlalchemy_error_to_dict(e)
